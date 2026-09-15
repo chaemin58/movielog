@@ -15,7 +15,7 @@ List<Movie> movieList = [
 
 void main() {
   for (var movie in movieList) {
-    print(movie.title + (movie.nickname ?? '회원'));
+    debugPrint(movie.title + (movie.nickname ?? '회원'));
   }
 
   runApp(
