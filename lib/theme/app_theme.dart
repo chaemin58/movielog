@@ -22,12 +22,12 @@ class AppTheme {
       onSurface: AppColors.neutral900,
     ),
     textTheme: const TextTheme(
-      headlineLarge: TextStyle(
+      titleLarge: TextStyle(
         fontSize: 28,
         height: 36 / 28,
         fontWeight: FontWeight.bold,
       ),
-      headlineMedium: TextStyle(
+      titleMedium: TextStyle(
         fontSize: 24,
         height: 32 / 24,
         fontWeight: FontWeight.w600,
@@ -81,9 +81,7 @@ class AppTheme {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: AppColors.surfaceLowest,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(radius)),
     ),
   );
 }
