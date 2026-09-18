@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:movielog/widget/profile.dart';
 
 import 'theme/app_theme.dart';
 
@@ -11,7 +12,7 @@ class MovieLogApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     debugShowCheckedModeBanner: false,
     theme: AppTheme.light,
-    home: const StartScreen(),
+    home: const Profile(),
   );
 }
 
