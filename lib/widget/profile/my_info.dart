@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:movielog/theme/app_theme.dart';
 
-class Profile extends StatelessWidget {
-  const Profile({super.key});
+class MyInfo extends StatelessWidget {
+  const MyInfo({super.key});
 
   @override
   Widget build(BuildContext context) {
