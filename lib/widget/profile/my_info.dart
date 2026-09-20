@@ -9,41 +9,34 @@ class MyInfo extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final colorTheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      body: Center(
-        child: Column(
-          spacing: 8,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 62,
-              backgroundImage: AssetImage(
-                'assets/images/profile/profile_movielog.jpg',
-              ),
-            ),
-            Text('무비러버', style: textTheme.titleLarge),
-            Text(
-              '매주 주말엔 영화관으로 출근하는 프로 관람객. \n좋은 영화를 보고 기록하는 것을 좋아합니다.',
-              style: textTheme.bodyLarge,
-            ),
-            TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(
-                foregroundColor: colorTheme.primary,
-                side: BorderSide(color: colorTheme.primary),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radius),
-                ),
-              ),
-              child: const Text('프로필 수정'),
-            ),
-          ],
+    return Column(
+      spacing: 8,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircleAvatar(
+          radius: 62,
+          backgroundImage: AssetImage(
+            'assets/images/profile/profile_movielog.jpg',
+          ),
         ),
-      ),
+        Text('무비러버', style: textTheme.titleLarge),
+        Text(
+          '매주 주말엔 영화관으로 출근하는 프로 관람객. \n좋은 영화를 보고 기록하는 것을 좋아합니다.',
+          style: textTheme.bodyLarge,
+        ),
+        TextButton(
+          onPressed: () {},
+          style: TextButton.styleFrom(
+            foregroundColor: colorTheme.primary,
+            side: BorderSide(color: colorTheme.primary),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radius),
+            ),
+          ),
+          child: const Text('프로필 수정'),
+        ),
+      ],
     );
   }
 }
