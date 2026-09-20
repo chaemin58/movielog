@@ -59,7 +59,9 @@ class AppTheme {
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.surfaceBase,
-      foregroundColor: AppColors.neutral900,
+      foregroundColor: AppColors.primary500,
+      titleTextStyle: TextStyle(fontWeight: FontWeight.w500),
+
       elevation: 0,
     ),
     cardTheme: CardThemeData(
