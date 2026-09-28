@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:movielog/router/app_router.dart';
 import 'package:movielog/widget/profile/profile.dart';
 
 import 'theme/app_theme.dart';
@@ -9,10 +10,11 @@ void main() => runApp(const MovieLogApp());
 class MovieLogApp extends StatelessWidget {
   const MovieLogApp({super.key});
   @override
-  Widget build(BuildContext context) => MaterialApp(
+  Widget build(BuildContext context) => MaterialApp.router(
     debugShowCheckedModeBanner: false,
+    title: 'MovieLog',
     theme: AppTheme.light,
-    home: const Profile(),
+    routerConfig: AppRouter.router,
   );
 }
 
