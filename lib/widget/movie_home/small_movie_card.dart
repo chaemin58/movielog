@@ -32,7 +32,11 @@ class SmallMovieCard extends StatelessWidget {
           ),
         ),
 
-        Text(movie.title, style: Theme.of(context).textTheme.bodyLarge),
+        Text(
+          movie.title,
+          style: Theme.of(context).textTheme.bodyLarge
+              ?.copyWith(fontWeight: FontWeight.w600),
+        ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
