@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 import 'package:movielog/main.dart';
 import 'package:movielog/widget/movie_detail/movie_detail_page.dart';
 import 'package:movielog/widget/movie_home/movie_home_page.dart';
+import 'package:movielog/widget/profile/profile.dart';
 
 class AppRouter {
   AppRouter._();
@@ -25,7 +26,7 @@ class AppRouter {
           return MovieDetailPage(movieId: movieId);
         },
       ),
-      GoRoute(path: '/my', builder: (context, state) => const StartScreen()),
+      GoRoute(path: '/my', builder: (context, state) => const Profile()),
     ],
   );
 }
