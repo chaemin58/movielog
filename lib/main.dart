@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:movielog/router/app_router.dart';
-import 'package:movielog/widget/profile/profile.dart';
 
 import 'theme/app_theme.dart';
 
