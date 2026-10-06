@@ -58,7 +58,7 @@ class AppTheme {
       ),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.surfaceBase,
+      backgroundColor: AppColors.surfaceLowest,
       foregroundColor: AppColors.primary500,
       titleTextStyle: TextStyle(fontWeight: FontWeight.w500),
 
