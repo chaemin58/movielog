@@ -60,8 +60,14 @@ class _MoviesPageState extends State<MoviesPage> {
                 }
 
                 if (filteredList.isEmpty) {
-                  //return const MovieEmptyGrid();
-                  return const MovieErrorGrid();
+                  return const MovieEmptyGrid();
+                  // return MovieErrorGrid(
+                  //   onRetry: () {
+                  //     setState(() {
+                  //       _moviesFuture = const FakeMovieService().fetchMovies();
+                  //     });
+                  //   },
+                  // );
                 }
 
                 return MovieGrid(movies: filteredList);
