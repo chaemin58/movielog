@@ -1,3 +1,4 @@
+import 'package:movielog/models/genre.dart';
 import 'package:movielog/models/movie.dart';
 
 enum MovieLoadMode { success, empty, failure }
@@ -22,5 +23,10 @@ class FakeMovieService {
       MovieLoadMode.failure =>
         throw const MovieLoadException('영화를 불러오지 못했습니다.'),
     };
+  }
+
+  Future<List<String>> fetchGenres() async {
+    await Future<void>.delayed(const Duration(seconds: 1));
+    return genres;
   }
 }
