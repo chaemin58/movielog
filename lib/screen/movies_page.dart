@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:movielog/models/movie.dart';
+import 'package:movielog/service/fake_movie_service.dart';
 import 'package:movielog/widget/common/common_app_bar.dart';
 import 'package:movielog/widget/movies/choice_chip_container.dart';
-import 'package:movielog/widget/movies/movie_list_card.dart';
+import 'package:movielog/widget/movies/movie_empty_grid.dart';
+import 'package:movielog/widget/movies/movie_grid.dart';
 
 final genreList = ['전체', ...movies.map((movie) => movie.genre).toSet()];
 
@@ -15,11 +17,16 @@ class MoviesPage extends StatefulWidget {
 
 class _MoviesPageState extends State<MoviesPage> {
   String selectedGenre = '전체';
+  late Future<List<Movie>> _moviesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _moviesFuture = const FakeMovieService().fetchMovies();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final filterdMovieList = selectedGenre == '전체'
-        ? movies
-        : movies.where((movie) => movie.genre == selectedGenre).toList();
     return Scaffold(
       appBar: CommonAppBar(title: "영화"),
       body: SingleChildScrollView(
@@ -33,17 +40,24 @@ class _MoviesPageState extends State<MoviesPage> {
               },
             ),
             const SizedBox(height: 16),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filterdMovieList.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 170 / 290,
-              ),
-              itemBuilder: (context, index) {
-                final movie = filterdMovieList[index];
-                return MovieListCard(movie: movie);
+            FutureBuilder<List<Movie>>(
+              future: _moviesFuture,
+              builder: (context, snapshop) {
+                if (snapshop.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final movieList = snapshop.data ?? [];
+
+                if (movieList.isEmpty) {
+                  return const MovieEmptyGrid();
+                }
+
+                final filteredList = selectedGenre == '전체'
+                    ? movieList
+                    : movieList.where((m) => m.genre == selectedGenre).toList();
+
+                return MovieGrid(movies: filteredList);
               },
             ),
           ],
