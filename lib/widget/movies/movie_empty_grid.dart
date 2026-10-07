@@ -5,7 +5,6 @@ class MovieEmptyGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
