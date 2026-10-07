@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:movielog/Widget/movies/movie_error_grid.dart';
 import 'package:movielog/models/movie.dart';
 import 'package:movielog/service/fake_movie_service.dart';
+import 'package:movielog/service/genre_preference.dart';
 import 'package:movielog/widget/common/common_app_bar.dart';
 import 'package:movielog/widget/movies/choice_chip_container.dart';
 import 'package:movielog/widget/movies/movie_empty_grid.dart';
@@ -18,6 +19,7 @@ class _MoviesPageState extends State<MoviesPage> {
   String selectedGenre = '전체';
   List<String> _genres = [];
   late Future<List<Movie>> _moviesFuture;
+  final _genrePreference = GenrePreference();
 
   Future<void> _loadGenres() async {
     final response = await const FakeMovieService().fetchGenres();
@@ -26,11 +28,19 @@ class _MoviesPageState extends State<MoviesPage> {
     });
   }
 
+  Future<void> _getSelectedGenre() async {
+    final response = await _genrePreference.read();
+    setState(() {
+      selectedGenre = response;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _moviesFuture = const FakeMovieService().fetchMovies();
     _loadGenres();
+    _getSelectedGenre();
   }
 
   @override
@@ -45,6 +55,7 @@ class _MoviesPageState extends State<MoviesPage> {
               selectedGenre: selectedGenre,
               onGenreSelected: (genre) {
                 setState(() => selectedGenre = genre);
+                _genrePreference.save(genre);
               },
             ),
             const SizedBox(height: 16),
