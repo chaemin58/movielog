@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:movielog/Widget/movies/movie_error_grid.dart';
 import 'package:movielog/models/movie.dart';
 import 'package:movielog/service/fake_movie_service.dart';
 import 'package:movielog/widget/common/common_app_bar.dart';
 import 'package:movielog/widget/movies/choice_chip_container.dart';
 import 'package:movielog/widget/movies/movie_empty_grid.dart';
 import 'package:movielog/widget/movies/movie_grid.dart';
-
-final genreList = ['전체', ...movies.map((movie) => movie.genre).toSet()];
 
 class MoviesPage extends StatefulWidget {
   const MoviesPage({super.key});
@@ -17,12 +16,21 @@ class MoviesPage extends StatefulWidget {
 
 class _MoviesPageState extends State<MoviesPage> {
   String selectedGenre = '전체';
+  List<String> _genres = [];
   late Future<List<Movie>> _moviesFuture;
+
+  Future<void> _loadGenres() async {
+    final response = await const FakeMovieService().fetchGenres();
+    setState(() {
+      _genres = ['전체', ...response];
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     _moviesFuture = const FakeMovieService().fetchMovies();
+    _loadGenres();
   }
 
   @override
@@ -33,7 +41,7 @@ class _MoviesPageState extends State<MoviesPage> {
         child: Column(
           children: [
             ChoiceChipContainer(
-              genres: genreList,
+              genres: _genres,
               selectedGenre: selectedGenre,
               onGenreSelected: (genre) {
                 setState(() => selectedGenre = genre);
@@ -43,19 +51,18 @@ class _MoviesPageState extends State<MoviesPage> {
             FutureBuilder<List<Movie>>(
               future: _moviesFuture,
               builder: (context, snapshop) {
+                final movieList = snapshop.data ?? [];
+                final filteredList = selectedGenre == '전체'
+                    ? movieList
+                    : movieList.where((m) => m.genre == selectedGenre).toList();
                 if (snapshop.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                final movieList = snapshop.data ?? [];
-
-                if (movieList.isEmpty) {
-                  return const MovieEmptyGrid();
+                if (filteredList.isEmpty) {
+                  //return const MovieEmptyGrid();
+                  return const MovieErrorGrid();
                 }
-
-                final filteredList = selectedGenre == '전체'
-                    ? movieList
-                    : movieList.where((m) => m.genre == selectedGenre).toList();
 
                 return MovieGrid(movies: filteredList);
               },
