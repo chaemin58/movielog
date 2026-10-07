@@ -69,16 +69,18 @@ class _MoviesPageState extends State<MoviesPage> {
                 if (snapshop.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
+                if (snapshop.hasError) {
+                  return MovieErrorGrid(
+                    onRetry: () {
+                      setState(() {
+                        _moviesFuture = const FakeMovieService().fetchMovies();
+                      });
+                    },
+                  );
+                }
 
                 if (filteredList.isEmpty) {
                   return const MovieEmptyGrid();
-                  // return MovieErrorGrid(
-                  //   onRetry: () {
-                  //     setState(() {
-                  //       _moviesFuture = const FakeMovieService().fetchMovies();
-                  //     });
-                  //   },
-                  // );
                 }
 
                 return MovieGrid(movies: filteredList);

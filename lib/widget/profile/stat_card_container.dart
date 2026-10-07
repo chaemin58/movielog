@@ -13,6 +13,7 @@ class StatCardContainer extends StatelessWidget {
         ),
 
         Expanded(
+          // TODO(5주차 유저별 평점 조회 API): 하드코딩된 '4.2'를 API 응답으로 교체
           child: StatCard(label: "평점", value: '4.2'),
         ),
         Expanded(
