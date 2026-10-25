@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movielog/models/movie.dart';
-import 'package:movielog/widget/movie_home/small_movie_card.dart';
+import 'package:movielog/widgets/movie_home/small_movie_card.dart';
 
 class SmallMovieCardContainer extends StatelessWidget {
   const SmallMovieCardContainer({super.key, required this.movieList});

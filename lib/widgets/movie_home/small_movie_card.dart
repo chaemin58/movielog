@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movielog/models/movie.dart';
-import 'package:movielog/widget/movie_home/rank_badge.dart';
+import 'package:movielog/widgets/movie_home/rank_badge.dart';
 
 class SmallMovieCard extends StatelessWidget {
   const SmallMovieCard({super.key, required this.movie, required this.rank});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movielog/models/movie.dart';
-import 'package:movielog/widget/movies/movie_list_card.dart';
+import 'package:movielog/widgets/movies/movie_list_card.dart';
 
 class MovieGrid extends StatelessWidget {
   const MovieGrid({super.key, required this.movies});

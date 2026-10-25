@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:movielog/models/movie.dart';
-import 'package:movielog/widget/common/common_app_bar.dart';
-import 'package:movielog/widget/common/custom_button.dart';
-import 'package:movielog/widget/movie_detail/movie_detail_description.dart';
+import 'package:movielog/widgets/common/common_app_bar.dart';
+import 'package:movielog/widgets/common/custom_button.dart';
+import 'package:movielog/widgets/movie_detail/movie_detail_description.dart';
 
 class MovieDetailPage extends StatelessWidget {
   const MovieDetailPage({super.key, required this.movieId});

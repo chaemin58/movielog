@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movielog/models/movie.dart';
-import 'package:movielog/widget/common/common_app_bar.dart';
-import 'package:movielog/widget/movie_home/movie_card.dart';
-import 'package:movielog/widget/movie_home/small_movie_card_container.dart';
+import 'package:movielog/widgets/common/common_app_bar.dart';
+import 'package:movielog/widgets/movie_home/movie_card.dart';
+import 'package:movielog/widgets/movie_home/small_movie_card_container.dart';
 
 class MovieHomePage extends StatelessWidget {
   const MovieHomePage({super.key});

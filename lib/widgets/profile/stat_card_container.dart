@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:movielog/widget/profile/stat_card.dart';
+import 'package:movielog/widgets/profile/stat_card.dart';
 
 class StatCardContainer extends StatelessWidget {
   const StatCardContainer({super.key});

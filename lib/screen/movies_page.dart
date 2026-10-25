@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:movielog/Widget/movies/movie_error_grid.dart';
+import 'package:movielog/widgets/movies/movie_error_grid.dart';
 import 'package:movielog/models/movie.dart';
 import 'package:movielog/service/fake_movie_service.dart';
 import 'package:movielog/service/genre_preference.dart';
-import 'package:movielog/widget/common/common_app_bar.dart';
-import 'package:movielog/widget/movies/choice_chip_container.dart';
-import 'package:movielog/widget/movies/movie_empty_grid.dart';
-import 'package:movielog/widget/movies/movie_grid.dart';
+import 'package:movielog/widgets/common/common_app_bar.dart';
+import 'package:movielog/widgets/movies/choice_chip_container.dart';
+import 'package:movielog/widgets/movies/movie_empty_grid.dart';
+import 'package:movielog/widgets/movies/movie_grid.dart';
 
 class MoviesPage extends StatefulWidget {
   const MoviesPage({super.key});

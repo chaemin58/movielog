@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movielog/models/movie.dart';
-import 'package:movielog/widget/common/custom_button.dart';
-import 'package:movielog/widget/common/tag_badge.dart';
+import 'package:movielog/widgets/common/custom_button.dart';
+import 'package:movielog/widgets/common/tag_badge.dart';
 
 class MovieCard extends StatelessWidget {
   const MovieCard({super.key, required this.movie});

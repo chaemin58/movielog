@@ -3,7 +3,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movielog/models/movie.dart';
 import 'package:movielog/theme/app_colors.dart';
 import 'package:movielog/utils/format.dart';
-import 'package:movielog/widget/movie_detail/movie_description_chip.dart';
+import 'package:movielog/widgets/movie_detail/movie_description_chip.dart';
 
 class MovieDetailDescription extends StatelessWidget {
   const MovieDetailDescription({super.key, required this.movie});

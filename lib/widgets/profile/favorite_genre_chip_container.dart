@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movielog/theme/app_colors.dart';
-import 'package:movielog/widget/profile/favorite_genre_chip.dart';
+import 'package:movielog/widgets/profile/favorite_genre_chip.dart';
 
 class FavoriteGenreChipContainer extends StatelessWidget {
   const FavoriteGenreChipContainer({super.key});

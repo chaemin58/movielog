@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:movielog/widget/common/common_app_bar.dart';
-import 'package:movielog/widget/profile/favorite_genre_chip_container.dart';
-import 'package:movielog/widget/profile/my_info.dart';
-import 'package:movielog/widget/profile/stat_card_container.dart';
+import 'package:movielog/widgets/common/common_app_bar.dart';
+import 'package:movielog/widgets/profile/favorite_genre_chip_container.dart';
+import 'package:movielog/widgets/profile/my_info.dart';
+import 'package:movielog/widgets/profile/stat_card_container.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});

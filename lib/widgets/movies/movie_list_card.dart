@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movielog/models/movie.dart';
-import 'package:movielog/widget/movies/rating_badge.dart';
+import 'package:movielog/widgets/movies/rating_badge.dart';
 
 class MovieListCard extends StatelessWidget {
   const MovieListCard({super.key, required this.movie});
