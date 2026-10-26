@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:movielog/models/movie.dart';
 import 'package:movielog/widgets/movie_home/small_movie_card.dart';
 
-class SmallMovieCardContainer extends StatelessWidget {
-  const SmallMovieCardContainer({super.key, required this.movieList});
+class PopularMovieCardContainer extends StatelessWidget {
+  const PopularMovieCardContainer({super.key, required this.movieList});
 
   final List<Movie> movieList;
   @override

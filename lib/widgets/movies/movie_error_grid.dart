@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class MovieErrorGrid extends StatelessWidget {
-  const MovieErrorGrid({super.key, required this.onRetry});
+  const MovieErrorGrid({super.key, required this.onRetry, this.message});
 
   final VoidCallback onRetry;
+  final String? message;
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ class MovieErrorGrid extends StatelessWidget {
       children: [
         Icon(Icons.movie_outlined, size: 64),
         SizedBox(height: 16),
-        Text('에러가 발생했습니다.'),
+        Text(message ?? '에러가 발생했습니다.'),
         SizedBox(height: 8),
         OutlinedButton.icon(
           onPressed: onRetry,

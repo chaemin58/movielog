@@ -45,7 +45,7 @@ class MovieHomePage extends StatelessWidget {
             //여기에 영화 주르륵
             SizedBox(
               height: 220,
-              child: SmallMovieCardContainer(movieList: movies),
+              child: PopularMovieCardContainer(movieList: movies),
             ),
           ],
         ),
