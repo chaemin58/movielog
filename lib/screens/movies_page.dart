@@ -24,6 +24,7 @@ class MoviesPage extends StatelessWidget {
                     .firstOrNull;
 
                 return ChoiceChipContainer(
+                  isLoading: viewModel.status == MovieListLoadStatus.loading,
                   genres: [
                     '전체',
                     ...viewModel.genres.map((genre) => genre.name),

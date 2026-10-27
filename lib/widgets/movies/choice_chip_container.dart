@@ -7,13 +7,16 @@ class ChoiceChipContainer extends StatelessWidget {
     required this.genres,
     required this.selectedGenre,
     required this.onGenreSelected,
+    this.isLoading = false,
   });
 
   final List<String> genres;
   final String selectedGenre;
   final ValueChanged<String> onGenreSelected;
+  final bool isLoading;
+
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -22,19 +25,22 @@ class ChoiceChipContainer extends StatelessWidget {
         return ChoiceChip(
           label: Text(genre),
           selected: isSelected,
-          onSelected: (_) => onGenreSelected(genre),
+          onSelected: isLoading ? null : (_) => onGenreSelected(genre),
           selectedColor: AppColors.primary600,
           backgroundColor: AppColors.primary200,
           showCheckmark: false,
           side: BorderSide.none,
           shape: const StadiumBorder(),
           labelStyle: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
+            color: isLoading
+                ? Colors.grey
+                : isSelected
+                ? Colors.white
+                : Colors.black,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         );
       }).toList(),
     );
   }
-
 }
