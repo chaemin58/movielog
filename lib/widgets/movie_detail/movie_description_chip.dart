@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:movielog/models/movie.dart';
 import 'package:movielog/theme/app_colors.dart';
 
 class MovieDescriptionChip extends StatelessWidget {
-  const MovieDescriptionChip({super.key, required this.movie});
-  final Movie movie;
+  const MovieDescriptionChip({super.key, required this.tags});
+  final List<String> tags;
   @override
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
-      children: movie.tags
+      children: tags
           .map(
             (tag) => Chip(
               label: Text(tag),

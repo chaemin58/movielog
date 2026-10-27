@@ -6,6 +6,7 @@ import 'package:movielog/screens/movie_home_page.dart';
 import 'package:movielog/screens/movies_page.dart';
 import 'package:movielog/screens/profile.dart';
 import 'package:movielog/view_models/movie_home_view_model.dart';
+import 'package:movielog/view_models/movie_detail_view_model.dart';
 import 'package:movielog/view_models/movie_list_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -46,8 +47,20 @@ class AppRouter {
       ),
       GoRoute(
         path: '/movies/:movieId',
-        builder: (context, state) =>
-            MovieDetailPage(movieId: state.pathParameters['movieId']!),
+        builder: (context, state) {
+          final movieId = state.pathParameters['movieId']!;
+          final id = int.tryParse(movieId);
+          if (id == null || id <= 0) {
+            return MovieDetailPage(movieId: movieId);
+          }
+          return ChangeNotifierProvider<MovieDetailViewModel>(
+            key: state.pageKey,
+            create: (context) =>
+                MovieDetailViewModel(context.read<TmdbMovieService>())
+                  ..load(id),
+            child: MovieDetailPage(movieId: movieId),
+          );
+        },
       ),
     ],
   );

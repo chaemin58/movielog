@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movielog/data/models/tmdb_genre_dto.dart';
+import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/router/app_router.dart';
 import 'package:movielog/screens/movie_home_page.dart';
@@ -16,6 +17,16 @@ import 'package:shared_preferences_platform_interface/shared_preferences_async_p
 
 class OfflineMovieService extends TmdbMovieService {
   OfflineMovieService() : super(Dio());
+
+  @override
+  Future<TmdbMovieDetailDto> fetchMovieDetail({required int movieId}) async {
+    final options = RequestOptions(path: '/movie/$movieId');
+    throw DioException(
+      requestOptions: options,
+      response: Response(requestOptions: options, statusCode: 404),
+      type: DioExceptionType.badResponse,
+    );
+  }
 
   @override
   Future<List<TmdbGenreDto>> fetchGenres() async {
@@ -76,7 +87,7 @@ void main() {
 
     AppRouter.router.go('/movies/999999');
     await tester.pumpAndSettle();
-    expect(find.text('영화를 찾을 수 없어요'), findsOneWidget);
+    expect(find.text('영화 정보를 불러오지 못했어요.'), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
     expect(tester.takeException(), isNull);
   });
