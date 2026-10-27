@@ -11,7 +11,7 @@ class TmdbMovieService {
   Future<TmdbMoviePageDto> fetchPopular({int page = 1}) async {
     final response = await _dio.get(
       '/movie/popular',
-      queryParameters: {'laguage': 'ko-KR', 'page': page},
+      queryParameters: {'language': 'ko-KR', 'page': page},
     );
     return TmdbMoviePageDto.fromJson(response.data as Map<String, dynamic>);
   }
