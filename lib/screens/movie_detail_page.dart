@@ -4,6 +4,7 @@ import 'package:movielog/widgets/common/common_app_bar.dart';
 import 'package:movielog/widgets/common/custom_button.dart';
 import 'package:movielog/widgets/common/tmdb_poster_image.dart';
 import 'package:movielog/widgets/movie_detail/movie_detail_description.dart';
+import 'package:movielog/widgets/movie_detail/movie_rating_dialog.dart';
 import 'package:movielog/widgets/movies/movie_error_grid.dart';
 import 'package:provider/provider.dart';
 
@@ -69,7 +70,22 @@ class MovieDetailPage extends StatelessWidget {
                       Expanded(
                         child: CustomButton(
                           content: const Text('후기 남기기'),
-                          onPressed: () {},
+                          onPressed: () async {
+                            final rating = await showDialog<double>(
+                              context: context,
+                              builder: (dialogContext) {
+                                return MovieRatingDialog(movieId: id);
+                              },
+                            );
+                            if (!context.mounted || rating == null) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  '평점 ${rating.toStringAsFixed(1)}점을 저장했어요.',
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
