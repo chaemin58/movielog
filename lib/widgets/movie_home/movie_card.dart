@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movielog/models/movie.dart';
+import 'package:movielog/data/models/tmdb_movie_dto.dart';
 import 'package:movielog/widgets/common/custom_button.dart';
 import 'package:movielog/widgets/common/tag_badge.dart';
+import 'package:movielog/widgets/common/tmdb_poster_image.dart';
 
 class MovieCard extends StatelessWidget {
   const MovieCard({super.key, required this.movie});
 
-  final Movie movie;
+  final TmdbMovieDto movie;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,11 @@ class MovieCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(movie.posterAsset, fit: BoxFit.cover),
+            TmdbPosterImage(
+              posterPath: movie.posterPath,
+              width: double.infinity,
+              height: 534,
+            ),
             DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -48,7 +53,7 @@ class MovieCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${movie.genre} · ${movie.type} · ${movie.runtimeMinutes}분',
+                    '${movie.genreIds} · ${movie.runtimeType} · ${movie.runtimeType}분',
                     style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 12),

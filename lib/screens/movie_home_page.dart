@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movielog/models/movie.dart';
+import 'package:movielog/view_models/movie_home_view_model.dart';
 import 'package:movielog/widgets/common/common_app_bar.dart';
 import 'package:movielog/widgets/movie_home/movie_card.dart';
 import 'package:movielog/widgets/movie_home/small_movie_card_container.dart';
+import 'package:provider/provider.dart';
 
 class MovieHomePage extends StatelessWidget {
   const MovieHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<MovieHomeViewModel>();
+    final popularMovies = viewModel.popularMovies;
+
     return Scaffold(
       appBar: CommonAppBar(title: "MovieLog"),
       body: SingleChildScrollView(
@@ -25,7 +29,7 @@ class MovieHomePage extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: MovieCard(movie: movies[0]),
+              child: MovieCard(movie: popularMovies[0]),
             ),
 
             Padding(
@@ -45,7 +49,7 @@ class MovieHomePage extends StatelessWidget {
             //여기에 영화 주르륵
             SizedBox(
               height: 220,
-              child: PopularMovieCardContainer(movieList: movies),
+              child: PopularMovieCardContainer(movieList: popularMovies),
             ),
           ],
         ),
