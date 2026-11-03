@@ -4,6 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:movielog/data/models/tmdb_genre_dto.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
+import 'package:movielog/data/services/rating_api_service.dart';
+import 'package:movielog/data/models/rating_dto.dart';
+import 'package:movielog/screens/my_ratings_screen.dart';
 import 'package:movielog/router/app_router.dart';
 import 'package:movielog/screens/movie_home_page.dart';
 import 'package:movielog/screens/movies_page.dart';
@@ -36,6 +39,12 @@ class OfflineMovieService extends TmdbMovieService {
   }
 }
 
+class EmptyRatingsService extends RatingApiService {
+  EmptyRatingsService() : super(Dio());
+  @override
+  Future<List<RatingDto>> fetchMyRatings(int memberId) async => [];
+}
+
 void main() {
   testWidgets('keeps navigation on all tabs and leaves it off detail pages', (
     tester,
@@ -53,11 +62,23 @@ void main() {
     AppRouter.router.go('/my');
 
     await tester.pumpWidget(
-      Provider<TmdbMovieService>(
-        create: (_) => OfflineMovieService(),
+      MultiProvider(
+        providers: [
+          Provider<TmdbMovieService>(create: (_) => OfflineMovieService()),
+          Provider<RatingApiService>(create: (_) => EmptyRatingsService()),
+        ],
         child: MaterialApp.router(routerConfig: AppRouter.router),
       ),
     );
+    await tester.pumpAndSettle();
+    expect(find.byType(Profile), findsOneWidget);
+
+    await tester.tap(find.text('내가 등록한 평점'));
+    await tester.pumpAndSettle();
+    expect(find.byType(MyRatingsScreen), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text('아직 등록한 평점이 없습니다.'), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     expect(find.byType(Profile), findsOneWidget);
     expect(
