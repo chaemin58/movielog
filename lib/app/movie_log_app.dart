@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:movielog/core/network/movie_log_client.dart';
+import 'package:movielog/data/services/member_check_service.dart';
+import 'package:movielog/data/services/rating_api_service.dart';
 import 'package:movielog/core/config/tmdb_config.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/router/app_router.dart';
@@ -12,6 +16,16 @@ class MovieLogApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<Dio>(
+          create: (_) => createMovieLogClient(),
+          dispose: (_, dio) => dio.close(force: true),
+        ),
+        Provider<MemberCheckService>(
+          create: (context) => MemberCheckService(context.read<Dio>()),
+        ),
+        Provider<RatingApiService>(
+          create: (context) => RatingApiService(context.read<Dio>()),
+        ),
         Provider<TmdbMovieService>(
           create: (_) => TmdbMovieService(createTmdbClient()),
         ),
