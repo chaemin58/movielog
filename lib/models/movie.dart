@@ -7,6 +7,7 @@ class Movie {
     required this.year,
     required this.runtimeMinutes,
     required this.posterAsset,
+    this.posterPath,
     required this.description,
     required this.rating,
     required this.ratingCount,
@@ -20,6 +21,7 @@ class Movie {
   final int year;
   final int runtimeMinutes;
   final String posterAsset;
+  final String? posterPath;
   final String description;
   final double rating;
   final int ratingCount;
