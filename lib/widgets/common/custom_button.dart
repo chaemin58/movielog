@@ -19,13 +19,13 @@ class CustomButton extends StatelessWidget {
     final isPrimary = variant == AppButtonVariant.primary;
     return TextButton(
       onPressed: onPressed,
-      child: content,
       style: TextButton.styleFrom(
         backgroundColor: isPrimary ? AppColors.primary600 : Colors.transparent,
         foregroundColor: isPrimary ? Colors.white : AppColors.primary600,
         side: isPrimary ? null : BorderSide(color: AppColors.primary600),
         minimumSize: const Size(double.infinity, 40),
       ),
+      child: content,
     );
   }
 }
