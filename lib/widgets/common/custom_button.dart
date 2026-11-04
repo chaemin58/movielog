@@ -26,6 +26,14 @@ class CustomButton extends StatelessWidget {
       height: 44,
       child: TextButton(
         onPressed: isLoading ? null : onPressed,
+        style: TextButton.styleFrom(
+          backgroundColor: isPrimary
+              ? AppColors.primary600
+              : Colors.transparent,
+          disabledBackgroundColor: AppColors.neutral800,
+          foregroundColor: isPrimary ? Colors.white : AppColors.primary600,
+          side: isPrimary ? null : BorderSide(color: AppColors.primary600),
+        ),
         child: isLoading
             ? const SizedBox(
                 width: 18,
@@ -36,14 +44,6 @@ class CustomButton extends StatelessWidget {
                 ),
               )
             : content,
-        style: TextButton.styleFrom(
-          backgroundColor: isPrimary
-              ? AppColors.primary600
-              : Colors.transparent,
-          disabledBackgroundColor: AppColors.neutral800,
-          foregroundColor: isPrimary ? Colors.white : AppColors.primary600,
-          side: isPrimary ? null : BorderSide(color: AppColors.primary600),
-        ),
       ),
     );
   }
