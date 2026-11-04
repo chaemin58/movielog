@@ -195,7 +195,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     textInputAction: TextInputAction.next,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
-                      hintText: isEmail ? '이메일 주소를 입력해주세요' : '닉네임을 입력해주세요',
+                      hintText: isEmail ? 'movie@umc.com' : '닉네임을 입력해주세요',
                       hintStyle: const TextStyle(fontSize: 14),
                       filled: true,
                       fillColor: errorText == null
@@ -241,6 +241,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(width: 8),
                 CustomButton(
+                  width: 102,
                   content: const Text('중복 확인'),
                   isLoading: checking,
                   onPressed: canCheck
