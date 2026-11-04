@@ -60,6 +60,7 @@ class MovieCard extends StatelessWidget {
                   CustomButton(
                     content: Text('상세보기'),
                     onPressed: () => context.push('/movies/${movie.id}'),
+                    width: double.infinity,
                   ),
                 ],
               ),
