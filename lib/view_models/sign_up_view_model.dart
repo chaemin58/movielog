@@ -15,6 +15,65 @@ class SignUpViewModel extends ChangeNotifier {
   int _requestVersion = 0;
   bool _disposed = false;
 
+  CheckStatus emailCheckStatus = CheckStatus.idle;
+  String? emailErrorText;
+  String? _duplicatedEmail;
+  String _currentEmail = '';
+  int _emailRequestVersion = 0;
+
+  bool get canCheckEmail =>
+      emailCheckStatus != CheckStatus.checking &&
+      emailCheckStatus != CheckStatus.duplicated;
+
+  void onEmailChanged(String value) {
+    _currentEmail = value.trim();
+    _emailRequestVersion++;
+    if (_duplicatedEmail != null && _currentEmail == _duplicatedEmail) {
+      emailCheckStatus = CheckStatus.duplicated;
+      emailErrorText = '이미 사용 중인 이메일입니다.';
+    } else {
+      emailCheckStatus = CheckStatus.idle;
+      emailErrorText = null;
+    }
+    if (!_disposed) notifyListeners();
+  }
+
+  Future<void> checkEmail(String value) async {
+    final requested = value.trim();
+    if (_disposed ||
+        requested.isEmpty ||
+        requested != _currentEmail ||
+        !canCheckEmail) {
+      return;
+    }
+    final version = ++_emailRequestVersion;
+    emailCheckStatus = CheckStatus.checking;
+    emailErrorText = null;
+    notifyListeners();
+    try {
+      final available = await _service.checkEmail(requested);
+      if (_disposed ||
+          version != _emailRequestVersion ||
+          requested != _currentEmail) {
+        return;
+      }
+      emailCheckStatus = available
+          ? CheckStatus.available
+          : CheckStatus.duplicated;
+      emailErrorText = available ? null : '이미 사용 중인 이메일입니다.';
+      if (!available) _duplicatedEmail = requested;
+    } on DioException {
+      if (_disposed ||
+          version != _emailRequestVersion ||
+          requested != _currentEmail) {
+        return;
+      }
+      emailCheckStatus = CheckStatus.error;
+      emailErrorText = '중복 확인에 실패했습니다. 다시 시도해 주세요.';
+    }
+    if (!_disposed && version == _emailRequestVersion) notifyListeners();
+  }
+
   bool get canCheckNickname =>
       nicknameCheckStatus != CheckStatus.checking &&
       nicknameCheckStatus != CheckStatus.duplicated;
@@ -24,7 +83,7 @@ class SignUpViewModel extends ChangeNotifier {
     _currentNickname = trimmed;
     _requestVersion++;
 
-    //이전 닉네임이 비어있거나 가져온 닉네임이 이전 닉네임이면
+    // 마지막으로 중복 확인된 닉네임을 다시 입력하면 결과를 복원합니다.
     if (_duplicateNickname != null && trimmed == _duplicateNickname) {
       nicknameCheckStatus = CheckStatus.duplicated;
       nicknameErrorText = '이미 사용 중인 닉네임입니다.';
@@ -38,7 +97,8 @@ class SignUpViewModel extends ChangeNotifier {
   Future<void> checkNickname(String value) async {
     final requested = value.trim();
     //요청할 값이 비어있거나 입력값과 요청값이 일치하지 않거나 얼리리턴처리
-    if (requested.isEmpty ||
+    if (_disposed ||
+        requested.isEmpty ||
         requested != _currentNickname ||
         !canCheckNickname) {
       return;
@@ -81,6 +141,7 @@ class SignUpViewModel extends ChangeNotifier {
   void dispose() {
     _disposed = true;
     _requestVersion++;
+    _emailRequestVersion++;
     super.dispose();
   }
 }

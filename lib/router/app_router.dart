@@ -1,3 +1,6 @@
+import 'package:movielog/data/services/member_check_service.dart';
+import 'package:movielog/view_models/sign_up_view_model.dart';
+import 'package:movielog/screens/register_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/screens/main_screen.dart';
@@ -13,9 +16,21 @@ import 'package:provider/provider.dart';
 class AppRouter {
   AppRouter._();
 
+  static ChangeNotifierProvider<SignUpViewModel> _registerScreen() =>
+      ChangeNotifierProvider<SignUpViewModel>(
+        create: (context) =>
+            SignUpViewModel(context.read<MemberCheckService>()),
+        child: const RegisterScreen(),
+      );
+
   static final router = GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/register',
+    overridePlatformDefaultLocation: true,
     routes: [
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => _registerScreen(),
+      ),
       ShellRoute(
         builder: (context, state, child) => MainScreen(
           currentIndex: indexFromLocation(state.uri.path),
