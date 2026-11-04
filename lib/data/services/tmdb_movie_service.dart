@@ -8,6 +8,15 @@ class TmdbMovieService {
   TmdbMovieService(this._dio);
   final Dio _dio;
 
+  Future<TmdbMovieDetailDto?> findMovieById(int movieId) async {
+    try {
+      return await fetchMovieDetail(movieId: movieId);
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 404) return null;
+      rethrow;
+    }
+  }
+
   Future<TmdbMoviePageDto> fetchPopular({int page = 1}) async {
     final response = await _dio.get(
       '/movie/popular',
@@ -28,7 +37,7 @@ class TmdbMovieService {
         'sort_by': 'popularity.desc',
         'include_adult': false,
         'include_video': false,
-        if (genreId != null) 'with_genres': genreId,
+        'with_genres': ?genreId,
       },
     );
     return TmdbMoviePageDto.fromJson(response.data as Map<String, dynamic>);
