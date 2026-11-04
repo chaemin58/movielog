@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:movielog/data/models/rating_dto.dart';
 
+//회원의 평점 목록을 가져오는 코드
 class RatingApiService {
   RatingApiService(this._dio);
   final Dio _dio;
