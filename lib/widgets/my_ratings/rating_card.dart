@@ -1,21 +1,22 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:movielog/data/models/rating_with_movie.dart';
 import 'package:movielog/widgets/common/tmdb_poster_image.dart';
 import 'package:movielog/theme/app_colors.dart';
 
 class RatingCard extends StatelessWidget {
-  const RatingCard({required this.entry});
+  const RatingCard({super.key, required this.entry});
   final RatingWithMovie entry;
 
   @override
   Widget build(BuildContext context) {
     final rating = entry.rating;
-    final date = rating.createdAt.toLocal();
-    final dateLabel =
-        '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
+
     return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: const BorderSide(color: AppColors.primary300, width: 2),
+      ),
       margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -45,28 +46,25 @@ class RatingCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.star,
-                        size: 20,
-                        color: AppColors.primary500,
+                      const Text(
+                        '별점',
+                        style: TextStyle(
+                          color: AppColors.primary600,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       Text('${rating.score} / 5'),
                     ],
                   ),
-                  if (rating.comment != null &&
-                      rating.comment!.trim().isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(rating.comment!),
-                  ],
-                  const SizedBox(height: 8),
-                  Text(
-                    dateLabel,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.neutral800,
-                    ),
-                  ),
+                  //comment는 선택사항이기 때문에 분기처리.
+                  //comment가 있으면 코멘트를 보여주고 비어있다면 남긴 코멘트가 없습니다. 라고 보여주기
+                  if (rating.comment != null)
+                    Text(
+                      rating.comment!,
+                    ) //null이 아니라고 확신하기 때문에 !을 붙임. 지역변수에 담으면 !없이 사용할 수 있다고 한다.
+                  else
+                    const Text("남긴 코멘트가 없습니다."),
                 ],
               ),
             ),

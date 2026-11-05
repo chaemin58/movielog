@@ -36,8 +36,16 @@ class Profile extends StatelessWidget {
                       height: 56,
                       child: Row(
                         children: [
-                          Expanded(child: Text('내가 등록한 평점')),
-                          Icon(Icons.chevron_right),
+                          Expanded(
+                            child: Text(
+                              '내가 등록한 평점',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            color: AppColors.primary600,
+                          ),
                         ],
                       ),
                     ),
