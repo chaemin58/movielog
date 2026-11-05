@@ -9,22 +9,41 @@ class CustomButton extends StatelessWidget {
     required this.content,
     required this.onPressed,
     this.variant = AppButtonVariant.primary,
+    this.isLoading = false,
+    this.width,
   });
   final Widget content;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final AppButtonVariant variant;
+  final bool isLoading;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
     final isPrimary = variant == AppButtonVariant.primary;
-    return TextButton(
-      onPressed: onPressed,
-      child: content,
-      style: TextButton.styleFrom(
-        backgroundColor: isPrimary ? AppColors.primary600 : Colors.transparent,
-        foregroundColor: isPrimary ? Colors.white : AppColors.primary600,
-        side: isPrimary ? null : BorderSide(color: AppColors.primary600),
-        minimumSize: const Size(double.infinity, 40),
+    return SizedBox(
+      width: width,
+      height: 44,
+      child: TextButton(
+        onPressed: isLoading ? null : onPressed,
+        style: TextButton.styleFrom(
+          backgroundColor: isPrimary
+              ? AppColors.primary600
+              : Colors.transparent,
+          disabledBackgroundColor: AppColors.neutral800,
+          foregroundColor: isPrimary ? Colors.white : AppColors.primary600,
+          side: isPrimary ? null : BorderSide(color: AppColors.primary600),
+        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : content,
       ),
     );
   }

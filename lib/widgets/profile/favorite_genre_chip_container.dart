@@ -15,7 +15,7 @@ class FavoriteGenreChipContainer extends StatelessWidget {
           "선호하는 장르",
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: AppColors.neutral900,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w700,
           ),
         ),
         Wrap(

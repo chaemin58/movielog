@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movielog/service/movie_rating_preference.dart';
-import 'package:movielog/widgets/common/MovieRatingInput.dart';
+import 'package:movielog/widgets/common/movie_rating_input.dart';
 
 class MovieRatingDialog extends StatefulWidget {
   const MovieRatingDialog({
