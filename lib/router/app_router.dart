@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:movielog/screens/button_comparison_screen.dart';
 import 'package:movielog/data/services/rating_api_service.dart';
 import 'package:movielog/screens/profile.dart';
 import 'package:movielog/screens/my_ratings_screen.dart';
@@ -67,6 +68,11 @@ class AppRouter {
             path: '/my',
             builder: (context, state) => const Profile(),
             routes: [
+              GoRoute(
+                path: 'buttons',
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (context, state) => const ButtonComparisonScreen(),
+              ),
               GoRoute(
                 path: 'ratings',
                 parentNavigatorKey: rootNavigatorKey,

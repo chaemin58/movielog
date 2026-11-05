@@ -73,6 +73,22 @@ class Profile extends StatelessWidget {
                   ),
                 ),
               ),
+              InkWell(
+                onTap: () => context.push('/my/buttons'),
+                borderRadius: BorderRadius.circular(8),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    height: 56,
+                    child: Row(
+                      children: [
+                        Expanded(child: Text('버튼 크기 비교 화면')),
+                        Icon(Icons.chevron_right),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
