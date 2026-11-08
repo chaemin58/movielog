@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class TmdbPosterImage extends StatelessWidget {
   const TmdbPosterImage({
@@ -33,7 +32,7 @@ class TmdbPosterImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
-      errorBuilder: (_, __, ___) => _placeholder(),
+      errorBuilder: (_, _, _) => _placeholder(),
     );
   }
 

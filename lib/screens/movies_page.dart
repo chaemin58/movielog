@@ -25,10 +25,10 @@ class MoviesPage extends StatelessWidget {
 
                 return ChoiceChipContainer(
                   isLoading: viewModel.status == MovieListLoadStatus.loading,
-                  genres: [
-                    '전체',
-                    ...viewModel.genres.map((genre) => genre.name),
-                  ],
+                  //비어있다면 빈 배열만,
+                  genres: viewModel.genres.isEmpty
+                      ? []
+                      : ['전체', ...viewModel.genres.map((genre) => genre.name)],
                   selectedGenre: selectedGenre?.name ?? '전체',
                   onGenreSelected: (name) {
                     final genre = viewModel.genres
