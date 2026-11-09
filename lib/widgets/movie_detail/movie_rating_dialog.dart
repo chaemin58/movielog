@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:movielog/data/services/rating_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:movielog/data/models/rating_request.dart';
 import 'package:movielog/widgets/common/custom_button.dart';
@@ -39,6 +39,7 @@ class _RatingDialogState extends State<RatingDialog> {
     return PopScope(
       canPop: !_isSubmitting,
       child: AlertDialog(
+        scrollable: true,
         title: const Text('평점을 남겨주세요'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -81,6 +82,7 @@ class _RatingDialogState extends State<RatingDialog> {
   }
 
   Future<void> _onConfirm() async {
+    if (_isSubmitting || _score < 1 || _score > 5) return;
     setState(() {
       _isSubmitting = true;
       _errorText = null;
@@ -102,7 +104,7 @@ class _RatingDialogState extends State<RatingDialog> {
       if (!mounted) return;
       setState(() {
         _isSubmitting = false;
-        _errorText = '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.';
+        _errorText = writeErrorMessage(error);
       });
     }
   }

@@ -111,9 +111,11 @@ class AppRouter {
           }
           return ChangeNotifierProvider<MovieDetailViewModel>(
             key: state.pageKey,
-            create: (context) =>
-                MovieDetailViewModel(context.read<TmdbMovieService>())
-                  ..load(id),
+            create: (context) => MovieDetailViewModel(
+              context.read<TmdbMovieService>(),
+              ratingService: context.read<RatingApiService>(),
+              memberId: context.read<LearningMemberSession>().memberId,
+            )..load(id),
             child: MovieDetailPage(movieId: movieId),
           );
         },
