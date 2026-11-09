@@ -5,9 +5,6 @@ import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
 import 'package:movielog/data/services/rating_api_service.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 
-//하드코딩
-const int sampleMemberId = 1;
-
 enum MyRatingsLoadStatus { idle, loading, success, empty, error }
 
 class MyRatingsViewModel extends ChangeNotifier {
@@ -23,9 +20,56 @@ class MyRatingsViewModel extends ChangeNotifier {
   List<RatingWithMovie> ratings = const [];
   MyRatingsLoadStatus status = MyRatingsLoadStatus.idle;
   String? message;
+  String? refreshWarning;
+  bool isWriting = false;
 
-  Future<void> load() async {
-    if (_disposed) return;
+  Future<void> updateRating({
+    required int ratingId,
+    required int score,
+    String? comment,
+  }) => _writeAndRefresh(
+    () => _service.updateRating(
+      memberId: memberId,
+      ratingId: ratingId,
+      score: score,
+      comment: comment,
+    ),
+  );
+
+  Future<void> deleteRating(int ratingId) => _writeAndRefresh(
+    () => _service.deleteRating(memberId: memberId, ratingId: ratingId),
+  );
+
+  Future<void> _writeAndRefresh(Future<void> Function() write) async {
+    if (_disposed || isWriting) throw StateError('이미 처리 중이거나 종료된 화면입니다.');
+    isWriting = true;
+    _requestVersion++; // 쓰기 전에 시작한 GET 결과를 무효화합니다.
+    notifyListeners();
+    try {
+      try {
+        await write();
+      } catch (error) {
+        if (!_disposed && shouldRefreshAfterRatingError(error)) {
+          await load(afterWrite: true);
+        }
+        rethrow; // 쓰기 실패만 Dialog로 전달합니다.
+      }
+      if (_disposed) return;
+      await load(afterWrite: true);
+      if (_disposed) return;
+      if (status == MyRatingsLoadStatus.error) {
+        refreshWarning = '저장은 완료됐지만 목록을 불러오지 못했습니다. 조회만 다시 시도해 주세요.';
+      }
+    } finally {
+      if (!_disposed) {
+        isWriting = false;
+        notifyListeners();
+      }
+    }
+  }
+
+  Future<void> load({bool afterWrite = false}) async {
+    if (_disposed || (isWriting && !afterWrite)) return;
     final version = ++_requestVersion;
     //일단 로드되면 먼저 로딩 상태로 만듦.
     status = MyRatingsLoadStatus.loading;
@@ -67,6 +111,7 @@ class MyRatingsViewModel extends ChangeNotifier {
       }
       if (_disposed || version != _requestVersion) return;
       ratings = entries;
+      refreshWarning = null;
       status = entries.isEmpty
           ? MyRatingsLoadStatus.empty
           : MyRatingsLoadStatus.success;
@@ -85,6 +130,10 @@ class MyRatingsViewModel extends ChangeNotifier {
       if (_disposed || version != _requestVersion) return;
       status = MyRatingsLoadStatus.error;
       message = '평점 데이터 형식을 확인할 수 없습니다.';
+    } catch (_) {
+      if (_disposed || version != _requestVersion) return;
+      status = MyRatingsLoadStatus.error;
+      message = '목록을 불러오지 못했습니다. 조회를 다시 시도해 주세요.';
     }
     if (!_disposed && version == _requestVersion) notifyListeners();
   }
