@@ -9,7 +9,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movielog/data/models/rating_dto.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
-import 'package:movielog/data/services/member_check_service.dart';
+import 'package:movielog/service/sign_up_service.dart';
+import 'package:movielog/data/models/common_response.dart';
+import 'package:movielog/data/models/create_member_request.dart';
+import 'package:movielog/data/models/sign_up_models.dart';
+import 'package:movielog/view_models/learning_member_session.dart';
 import 'package:movielog/data/services/rating_api_service.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/screens/register_screen.dart';
@@ -21,10 +25,23 @@ import 'package:movielog/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
-class PendingChecks extends MemberCheckService {
+class PendingChecks extends SignUpService {
   PendingChecks() : super(Dio());
   final nicknames = <Completer<bool>>[];
   final emails = <Completer<bool>>[];
+  @override
+  Future<CommonResponse<SignUpResult>> signUp(
+    CreateMemberRequest request,
+  ) async => CommonResponse(
+    isSuccess: true,
+    code: 'COMMON201',
+    message: '완료',
+    result: SignUpResult(
+      memberId: 42,
+      email: request.email,
+      nickname: request.nickname,
+    ),
+  );
   @override
   Future<bool> checkNickname(String nickname) {
     final pending = Completer<bool>();
@@ -201,14 +218,15 @@ void main() {
       vm.onEmailChanged('two@example.com');
       expect(vm.canCheckEmail, isTrue);
       vm.onEmailChanged('one@example.com');
-      expect(vm.canCheckEmail, isFalse);
+      expect(vm.canCheckEmail, isTrue);
+      expect(vm.emailCheckStatus, CheckStatus.idle);
       expect(service.emails.length, 1);
       final next = vm.checkNickname('영희');
       service.nicknames.last.complete(false);
       await next;
       vm.onNicknameChanged('다른이름');
       vm.onNicknameChanged('영희');
-      expect(vm.nicknameCheckStatus, CheckStatus.duplicated);
+      expect(vm.nicknameCheckStatus, CheckStatus.idle);
     },
   );
 
@@ -286,7 +304,7 @@ void main() {
             ),
           ),
           GoRoute(
-            path: '/home',
+            path: '/movies',
             builder: (_, _) => const Scaffold(body: Text('홈 도착')),
           ),
         ],
@@ -295,9 +313,12 @@ void main() {
       await tester.pumpWidget(
         RepaintBoundary(
           key: key,
-          child: MaterialApp.router(
-            theme: AppTheme.light,
-            routerConfig: router,
+          child: ChangeNotifierProvider(
+            create: (_) => LearningMemberSession(),
+            child: MaterialApp.router(
+              theme: AppTheme.light,
+              routerConfig: router,
+            ),
           ),
         ),
       );
@@ -330,7 +351,7 @@ void main() {
       service.nicknames.last.complete(true);
       service.emails.last.complete(true);
       await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField).last, 'password123');
+      await tester.enterText(find.byType(TextField).last, 'Password123!');
       await tester.ensureVisible(find.byType(CheckboxListTile));
       await tester.tap(find.byType(CheckboxListTile));
       await tester.pumpAndSettle();

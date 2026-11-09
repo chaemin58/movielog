@@ -35,3 +35,13 @@ class SignUpService {
     );
   }
 }
+
+//회원가입 요청이 실패했을 때 화면에 보여줄 오류 문장을 꺼내는 함수
+String writeSignUpErrorMessage(DioException error) {
+  final data = error.response?.data;
+  final common = data is Map<String, dynamic>
+      ? CommonResponse<Object?>.fromJson(data, (value) => value)
+      : null;
+
+  return common?.message ?? "회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.";
+}

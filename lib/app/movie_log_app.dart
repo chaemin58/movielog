@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:movielog/core/network/movie_log_client.dart';
-import 'package:movielog/data/models/sign_up_models.dart';
-import 'package:movielog/data/services/member_check_service.dart';
 import 'package:movielog/core/config/tmdb_config.dart';
 import 'package:movielog/data/services/rating_api_service.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
@@ -26,9 +24,6 @@ class MovieLogApp extends StatelessWidget {
         Provider<TmdbMovieService>(
           create: (_) => TmdbMovieService(createTmdbClient()),
         ),
-        Provider<MemberCheckService>(
-          create: (context) => MemberCheckService(context.read<Dio>()),
-        ),
         Provider<RatingApiService>(
           create: (context) => RatingApiService(context.read<Dio>()),
         ),
@@ -37,7 +32,7 @@ class MovieLogApp extends StatelessWidget {
         ),
 
         Provider<SignUpService>(
-          create: (_) => SignUpService(context.read<Dio>()),
+          create: (context) => SignUpService(context.read<Dio>()),
         ),
       ],
       child: MaterialApp.router(

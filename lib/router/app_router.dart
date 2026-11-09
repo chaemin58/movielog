@@ -6,7 +6,7 @@ import 'package:movielog/screens/profile.dart';
 import 'package:movielog/screens/my_ratings_screen.dart';
 import 'package:movielog/view_models/learning_member_session.dart';
 import 'package:movielog/view_models/my_ratings_view_model.dart';
-import 'package:movielog/data/services/member_check_service.dart';
+import 'package:movielog/service/sign_up_service.dart';
 import 'package:movielog/view_models/sign_up_view_model.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/screens/main_screen.dart';
@@ -25,8 +25,7 @@ class AppRouter {
 
   static ChangeNotifierProvider<SignUpViewModel> _registerScreen() =>
       ChangeNotifierProvider<SignUpViewModel>(
-        create: (context) =>
-            SignUpViewModel(context.read<MemberCheckService>()),
+        create: (context) => SignUpViewModel(context.read<SignUpService>()),
         child: const RegisterScreen(),
       );
 
