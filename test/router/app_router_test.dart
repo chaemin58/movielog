@@ -12,6 +12,7 @@ import 'package:movielog/screens/movie_home_page.dart';
 import 'package:movielog/screens/movies_page.dart';
 import 'package:movielog/screens/profile.dart';
 import 'package:provider/provider.dart';
+import 'package:movielog/view_models/learning_member_session.dart';
 // Test-only platform fake from the installed shared_preferences dependency.
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
@@ -64,6 +65,9 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
+          ChangeNotifierProvider(
+            create: (_) => LearningMemberSession()..setMemberId(42),
+          ),
           Provider<TmdbMovieService>(create: (_) => OfflineMovieService()),
           Provider<RatingApiService>(create: (_) => EmptyRatingsService()),
         ],

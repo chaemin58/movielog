@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:movielog/core/network/movie_log_client.dart';
-import 'package:movielog/data/services/member_check_service.dart';
 import 'package:movielog/core/config/tmdb_config.dart';
 import 'package:movielog/data/services/rating_api_service.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/router/app_router.dart';
+import 'package:movielog/service/sign_up_service.dart';
 import 'package:movielog/theme/app_theme.dart';
+import 'package:movielog/view_models/learning_member_session.dart';
 import 'package:provider/provider.dart';
 
 class MovieLogApp extends StatelessWidget {
@@ -23,11 +24,15 @@ class MovieLogApp extends StatelessWidget {
         Provider<TmdbMovieService>(
           create: (_) => TmdbMovieService(createTmdbClient()),
         ),
-        Provider<MemberCheckService>(
-          create: (context) => MemberCheckService(context.read<Dio>()),
-        ),
         Provider<RatingApiService>(
           create: (context) => RatingApiService(context.read<Dio>()),
+        ),
+        ChangeNotifierProvider<LearningMemberSession>(
+          create: (_) => LearningMemberSession(),
+        ),
+
+        Provider<SignUpService>(
+          create: (context) => SignUpService(context.read<Dio>()),
         ),
       ],
       child: MaterialApp.router(
