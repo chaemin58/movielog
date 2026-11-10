@@ -30,7 +30,7 @@ class AppRouter {
       );
 
   static final router = GoRouter(
-    initialLocation: '/register',
+    initialLocation: '/home',
     overridePlatformDefaultLocation: true,
     navigatorKey: rootNavigatorKey,
     routes: [
