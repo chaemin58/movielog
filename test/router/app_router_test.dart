@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:movielog/data/models/tmdb_genre_dto.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
-import 'package:movielog/data/services/rating_api_service.dart';
+import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/data/models/rating_dto.dart';
 import 'package:movielog/screens/my_ratings_screen.dart';
 import 'package:movielog/router/app_router.dart';
