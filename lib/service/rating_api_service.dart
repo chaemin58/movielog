@@ -77,23 +77,20 @@ void _checkWriteResponse(Response<dynamic> response) {
   if (!common.isSuccess) throw StateError(common.message);
 }
 
-String writeErrorMessage(Object error) {
-  if (error is DioException) {
-    final data = error.response?.data;
-    final message = data is Map ? data['message'] : null;
-    if (message is String && message.trim().isNotEmpty) return message;
-    return switch (error.response?.statusCode) {
-      400 => '입력한 별점과 코멘트를 확인해 주세요.',
-      403 => '본인이 작성한 평점만 수정하거나 삭제할 수 있습니다.',
-      404 => '회원 또는 평점을 찾을 수 없습니다.',
-      409 => '이미 이 영화에 평점을 남기셨습니다.',
-      _ => '요청에 실패했습니다. 연결 상태를 확인해 주세요.',
-    };
-  }
-  if (error is StateError) return error.message.toString();
-  return '응답을 확인하지 못했습니다. 다시 요청하기 전에 목록을 확인해 주세요.';
+//서버 오류 응답에서 메세지를 꺼내서 반환하고, 메세지가 없다면 기본 안내 문구를 반환한다.
+String writeErrorMessage(DioException error) {
+  //파라미터로 받은 error의 data를 가져오고,
+  final data = error.response?.data;
+  //문자열을 키로 사용하는 map인지를 확인하고 맞으면 CommonResponse 객체로 변환하거나 null
+  final common = data is Map<String, dynamic>
+      ? CommonResponse<Object?>.fromJson(data, (value) => value)
+      : null;
+  return common?.message ?? '요청에 실패했습니다. 잠시 후 다시 시도해 주세요.';
 }
 
-bool shouldRefreshAfterRatingError(Object error) =>
-    error is DioException &&
-    (error.response?.statusCode == 403 || error.response?.statusCode == 404);
+bool shouldRefreshAfterRatingError(DioException error) {
+  final data = error.response?.data;
+  final code = data is Map<String, dynamic> ? data['code'] as String? : null;
+  // 403·404는 화면에 남은 목록이 서버 상태와 어긋났다는 뜻이므로 다시 조회해서 맞춥니다.
+  return code == 'COMMON403' || code == 'COMMON404';
+}

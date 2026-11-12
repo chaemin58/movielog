@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movielog/data/models/rating_dto.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
-import 'package:movielog/data/services/rating_api_service.dart';
+import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/view_models/my_ratings_view_model.dart';
 import 'package:movielog/view_models/movie_detail_view_model.dart';
@@ -156,7 +156,12 @@ void main() {
         response: Response(
           requestOptions: options,
           statusCode: status,
-          data: {'message': '오류 $status'},
+          data: {
+            'isSuccess': false,
+            'code': 'COMMON$status',
+            'message': '오류 $status',
+            'result': null,
+          },
         ),
       );
       expect(writeErrorMessage(error), '오류 $status');

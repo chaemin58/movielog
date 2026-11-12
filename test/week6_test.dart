@@ -14,7 +14,7 @@ import 'package:movielog/data/models/common_response.dart';
 import 'package:movielog/data/models/create_member_request.dart';
 import 'package:movielog/data/models/sign_up_models.dart';
 import 'package:movielog/view_models/learning_member_session.dart';
-import 'package:movielog/data/services/rating_api_service.dart';
+import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/screens/register_screen.dart';
 import 'package:movielog/screens/my_ratings_screen.dart';

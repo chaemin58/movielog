@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:movielog/data/models/rating_with_movie.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
-import 'package:movielog/data/services/rating_api_service.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
+import 'package:movielog/service/rating_api_service.dart';
 
 enum MyRatingsLoadStatus { idle, loading, success, empty, error }
 
@@ -23,22 +23,51 @@ class MyRatingsViewModel extends ChangeNotifier {
   String? refreshWarning;
   bool isWriting = false;
 
+  //load()로 재조회
+  Future<void> _refreshAfterWrite() async {
+    await load();
+    if (status == MyRatingsLoadStatus.error) {
+      refreshWarning = '저장은 완료됐지만 목록을 불러오지 못했습니다. 조회만 다시 시도해 주세요.';
+      notifyListeners();
+    } else {
+      refreshWarning = null;
+    }
+  }
+
+  //평점 수정
   Future<void> updateRating({
     required int ratingId,
     required int score,
     String? comment,
-  }) => _writeAndRefresh(
-    () => _service.updateRating(
-      memberId: memberId,
-      ratingId: ratingId,
-      score: score,
-      comment: comment,
-    ),
-  );
+  }) async {
+    try {
+      await _service.updateRating(
+        memberId: memberId,
+        ratingId: ratingId,
+        score: score,
+        comment: comment,
+      );
+    } on DioException catch (error) {
+      message = writeErrorMessage(error);
+      notifyListeners();
+      if (shouldRefreshAfterRatingError(error)) await load();
+      rethrow;
+    }
+    await _refreshAfterWrite(); // GET 실패는 저장 실패로 다시 던지지 않습니다.
+  }
 
-  Future<void> deleteRating(int ratingId) => _writeAndRefresh(
-    () => _service.deleteRating(memberId: memberId, ratingId: ratingId),
-  );
+  //평점 삭제
+  Future<void> deleteRating(int ratingId) async {
+    try {
+      await _service.deleteRating(memberId: memberId, ratingId: ratingId);
+    } on DioException catch (error) {
+      message = writeErrorMessage(error);
+      notifyListeners();
+      if (shouldRefreshAfterRatingError(error)) await load();
+      rethrow;
+    }
+    await _refreshAfterWrite();
+  }
 
   Future<void> _writeAndRefresh(Future<void> Function() write) async {
     if (_disposed || isWriting) throw StateError('이미 처리 중이거나 종료된 화면입니다.');
@@ -48,7 +77,7 @@ class MyRatingsViewModel extends ChangeNotifier {
     try {
       try {
         await write();
-      } catch (error) {
+      } on DioException catch (error) {
         if (!_disposed && shouldRefreshAfterRatingError(error)) {
           await load(afterWrite: true);
         }

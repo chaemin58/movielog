@@ -1,6 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:movielog/data/models/rating_dto.dart';
-import 'package:movielog/data/services/rating_api_service.dart';
+import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/widgets/movie_detail/movie_rating_dialog.dart';
 import 'package:movielog/theme/app_colors.dart';
 import 'package:movielog/view_models/my_ratings_view_model.dart';
@@ -172,11 +173,19 @@ class _DeleteRatingDialogState extends State<_DeleteRatingDialog> {
       await widget.onConfirm();
       if (!mounted) return;
       Navigator.pop(context, true);
-    } catch (error) {
+    } on DioException catch (error) {
       if (!mounted) return;
       setState(() {
         _isDeleting = false;
         _errorText = writeErrorMessage(error);
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isDeleting = false;
+        _errorText = error is StateError
+            ? error.message.toString()
+            : '처리 결과를 확인하지 못했습니다. 평점 목록을 확인해 주세요.';
       });
     }
   }

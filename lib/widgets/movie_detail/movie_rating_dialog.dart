@@ -1,6 +1,7 @@
-import 'package:movielog/data/services/rating_api_service.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:movielog/data/models/rating_request.dart';
+import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/widgets/common/custom_button.dart';
 import 'package:movielog/widgets/common/movie_rating_input.dart';
 
@@ -100,11 +101,19 @@ class _RatingDialogState extends State<RatingDialog> {
       await widget.onSubmit(_score, trimmed.isEmpty ? null : trimmed);
       if (!mounted) return;
       Navigator.pop(context, true);
-    } catch (error) {
+    } on DioException catch (error) {
       if (!mounted) return;
       setState(() {
         _isSubmitting = false;
         _errorText = writeErrorMessage(error);
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+        _errorText = error is StateError
+            ? error.message.toString()
+            : '처리 결과를 확인하지 못했습니다. 평점 목록을 확인해 주세요.';
       });
     }
   }
