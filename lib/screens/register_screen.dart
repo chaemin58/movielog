@@ -20,7 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nicknameFieldKey = GlobalKey<FormFieldState<String>>();
   final _emailController = TextEditingController();
   final _emailFieldKey = GlobalKey<FormFieldState<String>>();
-  String _password = '';
+  final passwordController = TextEditingController();
   bool _agreed = false;
 
   bool get _validNickname =>
@@ -30,11 +30,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
       RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$')
           .hasMatch(_emailController.text.trim());
   bool get _validPassword =>
-      _password.length >= 8 &&
-      RegExp(r'[a-z]').hasMatch(_password) &&
-      RegExp(r'[A-Z]').hasMatch(_password) &&
-      RegExp(r'[0-9]').hasMatch(_password) &&
-      RegExp(r'[!@#$%^&*]').hasMatch(_password);
+      validatePasswordFormat(passwordController.text) == null;
+
+  String? validatePasswordFormat(String? value) {
+    if (value == null || value.isEmpty) return '비밀번호를 입력해 주세요.';
+    if (value.length < 8 ||
+        !RegExp(r'[a-z]').hasMatch(value) ||
+        !RegExp(r'[A-Z]').hasMatch(value) ||
+        !RegExp(r'[0-9]').hasMatch(value) ||
+        !RegExp(r'[!@#$%^&*]').hasMatch(value)) {
+      return r'8자 이상, 대문자·소문자·숫자·특수문자(!@#$%^&*)를 포함해 주세요.';
+    }
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    passwordController.addListener(_onPasswordInputChanged);
+  }
+
+  void _onPasswordInputChanged() {
+    setState(() {}); // 비밀번호 조건에 따라 가입 버튼을 갱신합니다.
+  }
+
   bool get _canRegister =>
       _validNickname && _validEmail && _validPassword && _agreed;
 
@@ -42,6 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _nicknameController.dispose();
     _emailController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -57,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await viewModel.submit(
       CreateMemberRequest(
         email: _emailController.text,
-        password: _password,
+        password: passwordController.text,
         nickname: _nicknameController.text,
       ),
     );
@@ -132,22 +152,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         _checkInput(isEmail: true),
                         const SizedBox(height: 20),
                         Consumer<SignUpViewModel>(
-                          builder: (context, viewModel, child) => _input(
-                            label: '비밀번호',
-                            hint: '비밀번호를 입력해주세요',
-                            value: _password,
-                            valid: _validPassword,
-                            error:
-                                r'8자 이상, 대문자·소문자·숫자·특수문자(!@#$%^&*)를 포함해 주세요.',
-                            enabled: !isSubmitting,
-                            serverError: viewModel.passwordErrorText,
-                            autofillHint: AutofillHints.newPassword,
-                            obscureText: true,
-                            onChanged: (value) {
-                              setState(() => _password = value);
-                              viewModel.onPasswordChanged();
-                            },
-                          ),
+                          builder: (context, viewModel, child) {
+                            return TextFormField(
+                              controller: passwordController,
+                              enabled: !isSubmitting,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                labelText: '비밀번호',
+                                errorText: viewModel.passwordErrorText,
+                                errorMaxLines: 2,
+                              ),
+                              obscureText: true,
+                              validator: (value) =>
+                                  validatePasswordFormat(value),
+                              onChanged: (_) => viewModel.onPasswordChanged(),
+                            );
+                          },
                         ),
                         const SizedBox(height: 40),
                         const Spacer(),
@@ -335,79 +356,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ],
         );
       },
-    );
-  }
-
-  Widget _input({
-    required String label,
-    required String hint,
-    required String value,
-    required bool valid,
-    required String error,
-    String? serverError,
-    required String autofillHint,
-    required ValueChanged<String> onChanged,
-    TextInputType keyboardType = TextInputType.text,
-    bool obscureText = false,
-    bool enabled = true,
-  }) {
-    final showError = (value.isNotEmpty && !valid) || serverError != null;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        TextFormField(
-          enabled: enabled,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          validator: (input) {
-            if (input == null || input.isEmpty) return '$label를 입력해 주세요.';
-            return valid ? null : error;
-          },
-          onChanged: onChanged,
-          obscureText: obscureText,
-          autocorrect: false,
-          enableSuggestions: !obscureText,
-          keyboardType: keyboardType,
-          autofillHints: [autofillHint],
-          textInputAction: obscureText
-              ? TextInputAction.done
-              : TextInputAction.next,
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: const TextStyle(fontSize: 14),
-            filled: true,
-            fillColor: showError
-                ? const Color(0xFFFFDAD6)
-                : AppColors.surfaceLow,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 12,
-            ),
-            isDense: true,
-            // 로컬 validator가 통과한 경우에도 서버 오류를 표시합니다.
-            errorText: serverError,
-            errorMaxLines: 2,
-            suffixIcon: value.isEmpty
-                ? null
-                : Icon(
-                    showError ? Icons.error_outline : Icons.check_circle,
-                    color: !showError
-                        ? AppColors.primary500
-                        : const Color(0xFFBA1A1A),
-                    size: 20,
-                    semanticLabel: showError
-                        ? (serverError ?? error)
-                        : '입력 형식 확인 완료',
-                  ),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: AppColors.secondary300),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

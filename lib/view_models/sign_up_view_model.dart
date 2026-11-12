@@ -13,7 +13,7 @@ class SignUpViewModel extends ChangeNotifier {
   final SignUpService _service;
 
   SubmitStatus submitStatus = SubmitStatus.idle;
-  int? createMemberId;
+  int? createMemberId; //실제 아이디
   String? passwordErrorText;
   String? snackbarMessage;
 
@@ -89,6 +89,7 @@ class SignUpViewModel extends ChangeNotifier {
     if (!_disposed && version == _emailRequestVersion) notifyListeners();
   }
 
+  //회원가입 제출을 누르면
   Future<void> submit(CreateMemberRequest request) async {
     if (_disposed || submitStatus == SubmitStatus.submitting) return;
     if (nicknameCheckStatus != CheckStatus.available ||
@@ -116,6 +117,7 @@ class SignUpViewModel extends ChangeNotifier {
     } on DioException catch (error) {
       if (_disposed) return;
       submitStatus = SubmitStatus.error;
+      //아까 만들어둔 함수를 사용해서 메세지를 세팅한다.
       final message = writeSignUpErrorMessage(error);
       if (error.response?.statusCode == 400 && message.contains('비밀번호')) {
         passwordErrorText = message;
@@ -123,6 +125,7 @@ class SignUpViewModel extends ChangeNotifier {
         snackbarMessage = message;
       }
     } catch (_) {
+      //onDioException에서 처리하지 않은 다른 예외나 오류를 잡는다.
       if (_disposed) return;
       submitStatus = SubmitStatus.error;
       snackbarMessage = '가입 결과를 확인하지 못했습니다. 새 요청 전에 서버 상태를 확인해 주세요.';
