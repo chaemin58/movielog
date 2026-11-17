@@ -1,12 +1,68 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:movielog/data/models/rating_request.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
+import 'package:movielog/service/rating_api_service.dart';
 
 enum MovieDetailLoadStatus { idle, loading, success, error }
 
+enum RatingSubmitStatus { idle, submitting, success, error }
+
 class MovieDetailViewModel extends ChangeNotifier {
-  MovieDetailViewModel(this._service);
+  MovieDetailViewModel(
+    this._service, {
+    RatingApiService? ratingService,
+    this.memberId,
+  }) : _ratingService = ratingService;
   final TmdbMovieService _service;
+  final RatingApiService? _ratingService;
+  final int? memberId;
+  RatingSubmitStatus submitStatus = RatingSubmitStatus.idle;
+  String? submitMessage;
+
+  Future<void> createRating({required int score, String? comment}) async {
+    if (_disposed || submitStatus == RatingSubmitStatus.submitting) return;
+    final id = memberId;
+    if (id == null) {
+      submitStatus = RatingSubmitStatus.error;
+      submitMessage = '먼저 회원가입을 완료해주세요.';
+      notifyListeners();
+      return;
+    }
+    final service = _ratingService;
+    final currentMovie = movie;
+    if (service == null || currentMovie == null) {
+      submitStatus = RatingSubmitStatus.error;
+      submitMessage = '평점 서비스와 영화 정보를 확인해 주세요.';
+      notifyListeners();
+      return;
+    }
+    submitStatus = RatingSubmitStatus.submitting;
+    submitMessage = null;
+    notifyListeners();
+    try {
+      await service.createRating(
+        memberId: id,
+        request: CreateRatingRequest(
+          movieId: currentMovie.id,
+          score: score,
+          comment: comment,
+        ),
+      );
+      if (_disposed) return;
+      submitStatus = RatingSubmitStatus.success;
+    } on DioException catch (error) {
+      if (_disposed) return;
+      submitStatus = RatingSubmitStatus.error;
+      submitMessage = writeErrorMessage(error);
+    } catch (_) {
+      if (_disposed) return;
+      submitStatus = RatingSubmitStatus.error;
+      submitMessage = '등록 결과를 확인하지 못했습니다. 평점 목록을 확인해 주세요.';
+    }
+    if (!_disposed) notifyListeners();
+  }
 
   TmdbMovieDetailDto? movie;
   MovieDetailLoadStatus status = MovieDetailLoadStatus.idle;

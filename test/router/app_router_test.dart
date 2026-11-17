@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:movielog/data/models/tmdb_genre_dto.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
-import 'package:movielog/data/services/rating_api_service.dart';
+import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/data/models/rating_dto.dart';
 import 'package:movielog/screens/my_ratings_screen.dart';
 import 'package:movielog/router/app_router.dart';
@@ -12,6 +12,7 @@ import 'package:movielog/screens/movie_home_page.dart';
 import 'package:movielog/screens/movies_page.dart';
 import 'package:movielog/screens/profile.dart';
 import 'package:provider/provider.dart';
+import 'package:movielog/view_models/learning_member_session.dart';
 // Test-only platform fake from the installed shared_preferences dependency.
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
@@ -64,6 +65,9 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
+          ChangeNotifierProvider(
+            create: (_) => LearningMemberSession()..setMemberId(42),
+          ),
           Provider<TmdbMovieService>(create: (_) => OfflineMovieService()),
           Provider<RatingApiService>(create: (_) => EmptyRatingsService()),
         ],

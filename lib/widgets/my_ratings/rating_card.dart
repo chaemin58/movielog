@@ -4,8 +4,15 @@ import 'package:movielog/widgets/common/tmdb_poster_image.dart';
 import 'package:movielog/theme/app_colors.dart';
 
 class RatingCard extends StatelessWidget {
-  const RatingCard({super.key, required this.entry});
+  const RatingCard({
+    super.key,
+    required this.entry,
+    this.onEdit,
+    this.onDelete,
+  });
   final RatingWithMovie entry;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +75,35 @@ class RatingCard extends StatelessWidget {
                 ],
               ),
             ),
+            if (onEdit != null || onDelete != null)
+              Column(
+                children: [
+                  TextButton(
+                    onPressed: onEdit,
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.primary500,
+                      backgroundColor: AppColors.primary100,
+                      minimumSize: const Size(52, 32),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                    child: const Text('수정'),
+                  ),
+                  TextButton(
+                    onPressed: onDelete,
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFFB3261E),
+                      backgroundColor: const Color(0xFFFFF1F0),
+                      minimumSize: const Size(52, 32),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                    child: const Text('삭제'),
+                  ),
+                ],
+              ),
           ],
         ),
       ),

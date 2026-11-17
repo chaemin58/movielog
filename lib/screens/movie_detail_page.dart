@@ -69,23 +69,50 @@ class MovieDetailPage extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: CustomButton(
-                          content: const Text('후기 남기기'),
-                          onPressed: () async {
-                            final rating = await showDialog<double>(
-                              context: context,
-                              builder: (dialogContext) {
-                                return MovieRatingDialog(movieId: id);
-                              },
-                            );
-                            if (!context.mounted || rating == null) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '평점 ${rating.toStringAsFixed(1)}점을 저장했어요.',
-                                ),
-                              ),
-                            );
-                          },
+                          content: Text(
+                            viewModel.memberId == null ? '회원가입 후 이용' : '후기 남기기',
+                          ),
+                          onPressed: viewModel.memberId == null
+                              ? null
+                              : () async {
+                                  final saved = await showDialog<bool>(
+                                    context: context,
+                                    barrierDismissible:
+                                        false, // 저장 중 바깥 탭으로 닫히는 것도 막습니다.
+                                    builder: (_) => RatingDialog(
+                                      onSubmit: (score, comment) async {
+                                        await viewModel.createRating(
+                                          score: score,
+                                          comment: comment,
+                                        );
+                                        if (viewModel.submitStatus !=
+                                            RatingSubmitStatus.success) {
+                                          final message =
+                                              viewModel.submitMessage ??
+                                              '저장에 실패했습니다.';
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(content: Text(message)),
+                                            );
+                                          }
+                                          throw StateError(message);
+                                        }
+                                      },
+                                    ),
+                                  );
+
+                                  if (!context.mounted || saved != true) return;
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        '평점을 등록했습니다. 마이페이지에서 확인할 수 있습니다.',
+                                      ),
+                                    ),
+                                  );
+                                },
                         ),
                       ),
                     ],
