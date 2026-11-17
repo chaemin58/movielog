@@ -41,11 +41,13 @@ class MyRatingsViewModel extends ChangeNotifier {
     String? comment,
   }) async {
     try {
-      await _service.updateRating(
-        memberId: memberId,
-        ratingId: ratingId,
-        score: score,
-        comment: comment,
+      await _writeAndRefresh(
+        () => _service.updateRating(
+          memberId: memberId,
+          ratingId: ratingId,
+          score: score,
+          comment: comment,
+        ),
       );
     } on DioException catch (error) {
       message = writeErrorMessage(error);
@@ -59,7 +61,9 @@ class MyRatingsViewModel extends ChangeNotifier {
   //평점 삭제
   Future<void> deleteRating(int ratingId) async {
     try {
-      await _service.deleteRating(memberId: memberId, ratingId: ratingId);
+      await _writeAndRefresh(
+        () => _service.deleteRating(memberId: memberId, ratingId: ratingId),
+      );
     } on DioException catch (error) {
       message = writeErrorMessage(error);
       notifyListeners();
