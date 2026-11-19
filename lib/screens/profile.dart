@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movielog/theme/app_colors.dart';
+import 'package:movielog/view_models/auth_view_model.dart';
 import 'package:movielog/widgets/common/common_app_bar.dart';
 import 'package:movielog/widgets/profile/favorite_genre_chip_container.dart';
 import 'package:movielog/widgets/profile/my_info.dart';
 import 'package:movielog/widgets/profile/stat_card_container.dart';
+import 'package:provider/provider.dart';
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
@@ -12,7 +14,17 @@ class Profile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "내 프로필"),
+      appBar: CommonAppBar(
+        title: "내 프로필",
+        actions: [
+          TextButton(
+            child: Text('로그아웃 하기'),
+            onPressed: () async {
+              await context.read<AuthViewModel>().logout();
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
