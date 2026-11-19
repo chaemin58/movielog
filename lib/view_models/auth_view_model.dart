@@ -189,6 +189,15 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
+  void updateMember(MemberInfo updated) {
+    if (_disposed || status != AuthStatus.signedIn) return null;
+    member = updated; //업데이트 된 걸로 갈아끼워주기
+    notifyListeners(); //다시 그리라고 알려주기
+  }
+
+  //다른 viewmodel이 401을 받았을 때 _clearCurrentSession을 호출할 수 없기 때문에... 세션 정리를 하는 공개 진입점
+  Future<void> expireSession() => _clearCurrentSession(expired: true);
+
   @override
   void dispose() {
     _disposed = true;
