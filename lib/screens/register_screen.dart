@@ -85,7 +85,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final memberId = viewModel.createMemberId;
     if (viewModel.submitStatus == SubmitStatus.success && memberId != null) {
       context.read<LearningMemberSession>().setMemberId(memberId);
-      context.go('/movies');
+      context.go('/login');
       return;
     }
     final failureMessage =
@@ -209,12 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               style: TextStyle(color: AppColors.neutral800),
                             ),
                             TextButton(
-                              onPressed: () => ScaffoldMessenger.of(context)
-                                  .showSnackBar(
-                                    const SnackBar(
-                                      content: Text('로그인 화면은 준비 중입니다.'),
-                                    ),
-                                  ),
+                              onPressed: () => context.go('/login'),
                               child: const Text(
                                 '로그인',
                                 style: TextStyle(

@@ -1,9 +1,12 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:movielog/screens/button_comparison_screen.dart';
+import 'package:movielog/screens/login_screen.dart';
 import 'package:movielog/screens/profile.dart';
 import 'package:movielog/screens/my_ratings_screen.dart';
+import 'package:movielog/screens/splash_screen.dart';
 import 'package:movielog/service/rating_api_service.dart';
+import 'package:movielog/view_models/auth_view_model.dart';
 import 'package:movielog/view_models/learning_member_session.dart';
 import 'package:movielog/view_models/my_ratings_view_model.dart';
 import 'package:movielog/service/sign_up_service.dart';
@@ -29,11 +32,27 @@ class AppRouter {
         child: const RegisterScreen(),
       );
 
-  static final router = GoRouter(
-    initialLocation: '/home',
+  static GoRouter createRouter(AuthViewModel authViewModel) => GoRouter(
+    initialLocation: '/start',
     overridePlatformDefaultLocation: true,
     navigatorKey: rootNavigatorKey,
+    refreshListenable: authViewModel,
+    redirect: (context, state) =>
+        authRedirect(authViewModel.status, state.uri.path),
     routes: [
+      GoRoute(
+        path: '/start',
+        builder: (context, state) {
+          final auth = context.watch<AuthViewModel>();
+          return SplashScreen(
+            message: auth.message,
+            onRetry: auth.status == AuthStatus.retryRequired
+                ? auth.restoreSession
+                : null,
+          );
+        },
+      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(
         path: '/register',
         builder: (context, state) => _registerScreen(),
@@ -121,4 +140,18 @@ class AppRouter {
       ),
     ],
   );
+}
+
+String? authRedirect(AuthStatus status, String path) {
+  final isStart = path == '/start';
+  final isAuthPage = path == '/login' || path == '/register';
+
+  return switch (status) {
+    AuthStatus.initializing ||
+    AuthStatus.retryRequired => isStart ? null : '/start',
+    AuthStatus.signedOut ||
+    AuthStatus.authenticating => isAuthPage ? null : '/login',
+    AuthStatus.signedIn =>
+      isStart || isAuthPage || path == '/' ? '/home' : null,
+  };
 }

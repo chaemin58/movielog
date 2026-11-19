@@ -285,7 +285,7 @@ void main() {
   });
 
   testWidgets(
-    'signup validates both checks, invalidates edits, then opens home',
+    'signup validates both checks, invalidates edits, then opens login',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
@@ -304,8 +304,8 @@ void main() {
             ),
           ),
           GoRoute(
-            path: '/movies',
-            builder: (_, _) => const Scaffold(body: Text('홈 도착')),
+            path: '/login',
+            builder: (_, _) => const Scaffold(body: Text('로그인 도착')),
           ),
         ],
       );
@@ -362,7 +362,7 @@ void main() {
       );
       await tester.tap(find.text('가입하기'));
       await tester.pumpAndSettle();
-      expect(find.text('홈 도착'), findsOneWidget);
+      expect(find.text('로그인 도착'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
