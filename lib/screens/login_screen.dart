@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movielog/view_models/auth_view_model.dart';
 import 'package:movielog/widgets/common/custom_button.dart';
@@ -15,7 +16,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
-
   late final AuthViewModel _auth;
 
   //로그인 화면에서 세션 만료 여부를 감지하고 만료되었다면 사용자에게 안내하기 위한 코드
@@ -52,79 +52,75 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    context.read<AuthViewModel>().login(_email.text, _password.text);
+    context.read<AuthViewModel>().login(_email.text.trim(), _password.text);
   }
 
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthViewModel>();
-    final isLoading = auth.status == AuthStatus.authenticating;
-    final canSubmit = !isLoading && !auth.storageCleanupInProgress;
-    final message = auth.message;
-
+    final loading = auth.status == AuthStatus.authenticating;
+    final enabled = !loading && !auth.storageCleanupInProgress;
     return Scaffold(
-      appBar: AppBar(title: const Text('로그인')),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: ListView(
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(24),
-              children: [
-                AutofillGroup(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextFormField(
-                          controller: _email,
-                          enabled: canSubmit,
-                          decoration: const InputDecoration(labelText: '이메일'),
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          autofillHints: const [AutofillHints.username],
-                          validator: (value) => (value?.trim().isEmpty ?? true)
-                              ? '이메일을 입력해 주세요.'
-                              : null,
-                        ),
-                        const SizedBox(height: 12),
-                        TextFormField(
-                          controller: _password,
-                          enabled: canSubmit,
-                          decoration: const InputDecoration(labelText: '비밀번호'),
-                          obscureText: true,
-                          autofillHints: const [AutofillHints.password],
-                          onFieldSubmitted: (_) => _submit(),
-                          validator: (value) => (value?.isEmpty ?? true)
-                              ? '비밀번호를 입력해 주세요.'
-                              : null,
-                        ),
-                        if (message != null) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            message,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 24),
-                        CustomButton(
-                          onPressed: canSubmit ? _submit : null,
-                          content: Text(isLoading ? '로그인 중…' : '로그인'),
-                        ),
-                      ],
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text('로그인'),
+        automaticallyImplyLeading: false,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              const SizedBox(height: 64),
+              SvgPicture.asset(
+                'assets/logos/movielog_logo.svg',
+                width: 84,
+                height: 84,
+              ),
+              const SizedBox(height: 24),
+              const Text('MovieLog에 로그인'),
+              const SizedBox(height: 48),
+              TextFormField(
+                controller: _email,
+                enabled: enabled,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(labelText: '이메일'),
+                validator: (value) =>
+                    (value?.trim().isEmpty ?? true) ? '이메일을 입력해 주세요.' : null,
+              ),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: _password,
+                enabled: enabled,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: '비밀번호'),
+                validator: (value) =>
+                    (value?.isEmpty ?? true) ? '비밀번호를 입력해 주세요.' : null,
+              ),
+              if (auth.message != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(
+                    auth.message!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
                     ),
                   ),
                 ),
-                TextButton(
-                  onPressed: canSubmit ? () => context.push('/register') : null,
-                  child: const Text('회원가입'),
-                ),
-              ],
-            ),
+              const SizedBox(height: 48),
+              CustomButton(
+                content: const Text('로그인'),
+                width: double.infinity,
+                isLoading: loading,
+                onPressed: enabled ? _submit : null,
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: enabled ? () => context.push('/register') : null,
+                child: const Text('회원가입'),
+              ),
+            ],
           ),
         ),
       ),
