@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:movielog/core/network/api_error.dart';
 import 'package:movielog/data/models/login_models.dart';
+import 'package:movielog/data/models/member_info.dart';
 import 'package:movielog/data/services/auth_api_service.dart';
 import 'package:movielog/data/services/member_api_service.dart';
 import 'package:movielog/data/storage/token_storage.dart';
@@ -24,7 +25,7 @@ class AuthViewModel extends ChangeNotifier {
 
   AuthStatus status = AuthStatus.initializing;
   MemberInfo? member;
-  MemberLoadStatus memberStatus = MemberLoadStatus.idle;
+
   String? message;
   int _sessionVersion = 0;
   int get sessionVersion => _sessionVersion;
@@ -32,6 +33,36 @@ class AuthViewModel extends ChangeNotifier {
   bool storageCleanupInProgress = false;
   bool _disposed = false;
   Future<void>? _tokenWrite;
+
+  MemberLoadStatus memberStatus = MemberLoadStatus.idle;
+
+  Future<void> loadMember({bool force = false}) async {
+    if (status != AuthStatus.signedIn) return;
+    if (memberStatus == MemberLoadStatus.loading) return;
+    if (member != null && !force) return;
+
+    final version = _sessionVersion;
+    memberStatus = MemberLoadStatus.loading;
+    notifyListeners();
+
+    try {
+      final me = await _memberApi.fetchMe();
+      if (version != _sessionVersion) return;
+      member = me;
+      memberStatus = MemberLoadStatus.success;
+    } on DioException catch (error) {
+      if (version != _sessionVersion) return;
+      final code = apiErrorCode(error);
+      if (code == 'AUTH401_2' || code == 'AUTH401_3' || code == 'AUTH401_4') {
+        await _clearCurrentSession(); //세션 만료 시 비워줌
+        return;
+      }
+      memberStatus = MemberLoadStatus.error;
+      message = '내 정보를 불러오지 못했어요';
+    }
+
+    notifyListeners();
+  }
 
   bool _isCurrent(int version) => !_disposed && version == _sessionVersion;
   void _notify() {
@@ -61,7 +92,7 @@ class AuthViewModel extends ChangeNotifier {
         return;
       }
 
-      final restoredMember = await _memberApi.getMe();
+      final restoredMember = await _memberApi.fetchMe();
       if (!_isCurrent(version)) return;
       member = restoredMember;
       memberStatus = MemberLoadStatus.success;
