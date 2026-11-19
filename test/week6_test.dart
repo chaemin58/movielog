@@ -58,7 +58,7 @@ class PendingChecks extends SignUpService {
 }
 
 class PendingRatings extends RatingApiService {
-  PendingRatings() : super(Dio());
+  PendingRatings() : super(Dio(), Dio());
   final requests = <Completer<List<RatingDto>>>[];
   @override
   Future<List<RatingDto>> fetchMyRatings(int memberId) {

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:movielog/core/network/movie_log_client.dart';
 import 'package:movielog/core/config/tmdb_config.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
+import 'package:movielog/data/storage/token_storage.dart';
 import 'package:movielog/router/app_router.dart';
 import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/service/sign_up_service.dart';
@@ -15,6 +17,10 @@ class MovieLogApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokenStorage = SecureTokenStorage(const FlutterSecureStorage());
+    final publicClient = createMovieLogClient(); //interceptor 없음.
+    final authClient = createAuthMovieLogClinet(tokenStorage);
+
     return MultiProvider(
       providers: [
         Provider<Dio>(
@@ -25,7 +31,7 @@ class MovieLogApp extends StatelessWidget {
           create: (_) => TmdbMovieService(createTmdbClient()),
         ),
         Provider<RatingApiService>(
-          create: (context) => RatingApiService(context.read<Dio>()),
+          create: (_) => RatingApiService(publicClient, authClient),
         ),
         ChangeNotifierProvider<LearningMemberSession>(
           create: (_) => LearningMemberSession(),

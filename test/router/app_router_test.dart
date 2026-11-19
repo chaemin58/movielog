@@ -41,7 +41,7 @@ class OfflineMovieService extends TmdbMovieService {
 }
 
 class EmptyRatingsService extends RatingApiService {
-  EmptyRatingsService() : super(Dio());
+  EmptyRatingsService() : super(Dio(), Dio());
   @override
   Future<List<RatingDto>> fetchMyRatings(int memberId) async => [];
 }

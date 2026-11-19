@@ -4,11 +4,12 @@ import 'package:movielog/data/models/rating_dto.dart';
 import 'package:movielog/data/models/rating_request.dart';
 
 class RatingApiService {
-  RatingApiService(this._dio);
-  final Dio _dio;
+  RatingApiService(this._publicClient, this._authClient);
+  final Dio _publicClient;
+  final Dio _authClient;
 
   Future<List<RatingDto>> fetchMyRatings(int memberId) async {
-    final response = await _dio.get('/v6/members/$memberId/ratings');
+    final response = await _publicClient.get('/v6/members/$memberId/ratings');
     final list = response.data as List<dynamic>;
     return list
         .map((item) => RatingDto.fromJson(item as Map<String, dynamic>))
@@ -20,7 +21,7 @@ class RatingApiService {
     required CreateRatingRequest request,
   }) async {
     {
-      final response = await _dio.post(
+      final response = await _authClient.post(
         '/v6/members/$memberId/ratings',
         data: request.toJson(),
       );
@@ -38,7 +39,7 @@ class RatingApiService {
     required int score,
     String? comment,
   }) async {
-    final response = await _dio.patch(
+    final response = await _authClient.patch(
       '/v6/members/$memberId/ratings/$ratingId',
       // 기존 코멘트는 그대로 보내고, 지웠다면 null을 보냅니다.
       data: {'score': score, 'comment': comment},
@@ -53,7 +54,7 @@ class RatingApiService {
     required int memberId,
     required int ratingId,
   }) async {
-    final response = await _dio.delete(
+    final response = await _authClient.delete(
       '/v6/members/$memberId/ratings/$ratingId',
     );
     if (response.statusCode != 204) {

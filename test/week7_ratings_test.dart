@@ -19,7 +19,7 @@ class Movies extends TmdbMovieService {
 }
 
 class Ratings extends RatingApiService {
-  Ratings() : super(Dio());
+  Ratings() : super(Dio(), Dio());
   int writes = 0;
   int reads = 0;
   bool failRead = true;
@@ -121,7 +121,7 @@ void main() {
           },
         ),
       );
-      final service = RatingApiService(dio);
+      final service = RatingApiService(dio, dio);
       final detail = MovieDetailViewModel(
         Movies(),
         ratingService: service,
