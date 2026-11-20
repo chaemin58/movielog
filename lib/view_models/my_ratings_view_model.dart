@@ -4,11 +4,28 @@ import 'package:movielog/data/models/rating_with_movie.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/service/rating_api_service.dart';
+import 'package:movielog/view_models/auth_view_model.dart';
 
 enum MyRatingsLoadStatus { idle, loading, success, empty, error }
 
 class MyRatingsViewModel extends ChangeNotifier {
-  MyRatingsViewModel(this._service, this._movieService, this.memberId);
+  MyRatingsViewModel(
+    this._service,
+    this._movieService,
+    this.memberId, {
+    AuthViewModel? auth,
+  }) : _auth = auth,
+       _sessionVersion = auth?.sessionVersion;
+
+  final AuthViewModel? _auth;
+  final int? _sessionVersion;
+  bool get isSessionActive => !_inactive;
+  // 이 목록 화면을 만든 세션이 끝났다면 늦은 응답을 반영하지 않습니다.
+  bool get _inactive =>
+      _disposed ||
+      (_auth != null &&
+          (_auth.sessionVersion != _sessionVersion ||
+              _auth.status != AuthStatus.signedIn));
 
   final RatingApiService _service;
   final TmdbMovieService _movieService;
@@ -26,6 +43,7 @@ class MyRatingsViewModel extends ChangeNotifier {
   //load()로 재조회
   Future<void> _refreshAfterWrite() async {
     await load();
+    if (_inactive) return;
     if (status == MyRatingsLoadStatus.error) {
       refreshWarning = '저장은 완료됐지만 목록을 불러오지 못했습니다. 조회만 다시 시도해 주세요.';
       notifyListeners();
@@ -50,11 +68,14 @@ class MyRatingsViewModel extends ChangeNotifier {
         ),
       );
     } on DioException catch (error) {
+      if (_inactive) return;
       message = writeErrorMessage(error);
       notifyListeners();
       if (shouldRefreshAfterRatingError(error)) await load();
+      if (_inactive) return;
       rethrow;
     }
+    if (_inactive) return;
     await _refreshAfterWrite(); // GET 실패는 저장 실패로 다시 던지지 않습니다.
   }
 
@@ -65,16 +86,19 @@ class MyRatingsViewModel extends ChangeNotifier {
         () => _service.deleteRating(memberId: memberId, ratingId: ratingId),
       );
     } on DioException catch (error) {
+      if (_inactive) return;
       message = writeErrorMessage(error);
       notifyListeners();
       if (shouldRefreshAfterRatingError(error)) await load();
+      if (_inactive) return;
       rethrow;
     }
+    if (_inactive) return;
     await _refreshAfterWrite();
   }
 
   Future<void> _writeAndRefresh(Future<void> Function() write) async {
-    if (_disposed || isWriting) throw StateError('이미 처리 중이거나 종료된 화면입니다.');
+    if (_inactive || isWriting) throw StateError('이미 처리 중이거나 종료된 화면입니다.');
     isWriting = true;
     _requestVersion++; // 쓰기 전에 시작한 GET 결과를 무효화합니다.
     notifyListeners();
@@ -82,19 +106,19 @@ class MyRatingsViewModel extends ChangeNotifier {
       try {
         await write();
       } on DioException catch (error) {
-        if (!_disposed && shouldRefreshAfterRatingError(error)) {
+        if (!_inactive && shouldRefreshAfterRatingError(error)) {
           await load(afterWrite: true);
         }
         rethrow; // 쓰기 실패만 Dialog로 전달합니다.
       }
-      if (_disposed) return;
+      if (_inactive) return;
       await load(afterWrite: true);
-      if (_disposed) return;
+      if (_inactive) return;
       if (status == MyRatingsLoadStatus.error) {
         refreshWarning = '저장은 완료됐지만 목록을 불러오지 못했습니다. 조회만 다시 시도해 주세요.';
       }
     } finally {
-      if (!_disposed) {
+      if (!_inactive) {
         isWriting = false;
         notifyListeners();
       }
@@ -102,7 +126,7 @@ class MyRatingsViewModel extends ChangeNotifier {
   }
 
   Future<void> load({bool afterWrite = false}) async {
-    if (_disposed || (isWriting && !afterWrite)) return;
+    if (_inactive || (isWriting && !afterWrite)) return;
     final version = ++_requestVersion;
     //일단 로드되면 먼저 로딩 상태로 만듦.
     status = MyRatingsLoadStatus.loading;
@@ -114,11 +138,11 @@ class MyRatingsViewModel extends ChangeNotifier {
       //서버에서 가져오기
       final rawRatings = await _service.fetchMyRatings(memberId);
       //뭔가 안맞으면 얼리 리턴
-      if (_disposed || version != _requestVersion) return;
+      if (_inactive || version != _requestVersion) return;
       // 나중에 사용할 객체를 넣을 리스트
       final entries = <RatingWithMovie>[];
       for (final rating in rawRatings) {
-        if (_disposed || version != _requestVersion) return;
+        if (_inactive || version != _requestVersion) return;
 
         //이미 불러왔던 정보를 캐싱을 해놓는다는 개념
         if (!_movieCache.containsKey(rating.movieId)) {
@@ -133,7 +157,7 @@ class MyRatingsViewModel extends ChangeNotifier {
           } on TypeError {
             movie = null;
           } //!!!! 영화 조회 중 문제가 발생하면 그냥 movie를 null로 만들어서 영화 정보 없이 평점 기록은 보여주려는 처리
-          if (_disposed || version != _requestVersion) return;
+          if (_inactive || version != _requestVersion) return;
           _movieCache[rating.movieId] = movie;
         }
 
@@ -142,7 +166,7 @@ class MyRatingsViewModel extends ChangeNotifier {
           RatingWithMovie(rating: rating, movie: _movieCache[rating.movieId]),
         );
       }
-      if (_disposed || version != _requestVersion) return;
+      if (_inactive || version != _requestVersion) return;
       ratings = entries;
       refreshWarning = null;
       status = entries.isEmpty
@@ -152,23 +176,23 @@ class MyRatingsViewModel extends ChangeNotifier {
         message = '일부 영화 정보를 불러오지 못했습니다. 평점 기록은 그대로 표시합니다.';
       }
     } on DioException catch (error) {
-      if (_disposed || version != _requestVersion) return;
+      if (_inactive || version != _requestVersion) return;
       status = MyRatingsLoadStatus.error;
       message = writeMyRatingsErrorMessage(error);
     } on FormatException {
-      if (_disposed || version != _requestVersion) return;
+      if (_inactive || version != _requestVersion) return;
       status = MyRatingsLoadStatus.error;
       message = '평점 데이터 형식을 확인할 수 없습니다.';
     } on TypeError {
-      if (_disposed || version != _requestVersion) return;
+      if (_inactive || version != _requestVersion) return;
       status = MyRatingsLoadStatus.error;
       message = '평점 데이터 형식을 확인할 수 없습니다.';
     } catch (_) {
-      if (_disposed || version != _requestVersion) return;
+      if (_inactive || version != _requestVersion) return;
       status = MyRatingsLoadStatus.error;
       message = '목록을 불러오지 못했습니다. 조회를 다시 시도해 주세요.';
     }
-    if (!_disposed && version == _requestVersion) notifyListeners();
+    if (!_inactive && version == _requestVersion) notifyListeners();
   }
 
   @override

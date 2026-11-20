@@ -19,7 +19,7 @@ class Movies extends TmdbMovieService {
 }
 
 class Ratings extends RatingApiService {
-  Ratings() : super(Dio());
+  Ratings() : super(Dio(), Dio());
   int writes = 0;
   int reads = 0;
   bool failRead = true;
@@ -121,12 +121,8 @@ void main() {
           },
         ),
       );
-      final service = RatingApiService(dio);
-      final detail = MovieDetailViewModel(
-        Movies(),
-        ratingService: service,
-        memberId: 42,
-      );
+      final service = RatingApiService(dio, dio);
+      final detail = MovieDetailViewModel(Movies(), ratingService: service);
       addTearDown(detail.dispose);
       await detail.load(123);
       await detail.createRating(score: 5, comment: '좋아요');

@@ -26,6 +26,7 @@ class MovieDetailPage extends StatelessWidget {
     return Consumer<MovieDetailViewModel>(
       builder: (context, viewModel, child) {
         final movie = viewModel.movie;
+        final rating = viewModel.myRating;
         return Scaffold(
           appBar: CommonAppBar(title: 'Cinema Archive'),
           body: switch (viewModel.status) {
@@ -50,6 +51,36 @@ class MovieDetailPage extends StatelessWidget {
                             height: 585,
                           ),
                           MovieDetailDescription(movie: movie),
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '내 평점',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      rating == null
+                                          ? '아직 등록한 평점이 없어요.'
+                                          : '${rating.score} / 5점',
+                                    ),
+                                    if (rating?.comment?.trim().isNotEmpty ??
+                                        false) ...[
+                                      const SizedBox(height: 8),
+                                      Text(rating!.comment!),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -70,9 +101,9 @@ class MovieDetailPage extends StatelessWidget {
                       Expanded(
                         child: CustomButton(
                           content: Text(
-                            viewModel.memberId == null ? '회원가입 후 이용' : '후기 남기기',
+                            viewModel.canCreateRating ? '후기 남기기' : '로그인 후 이용',
                           ),
-                          onPressed: viewModel.memberId == null
+                          onPressed: !viewModel.canCreateRating
                               ? null
                               : () async {
                                   final saved = await showDialog<bool>(
@@ -107,9 +138,7 @@ class MovieDetailPage extends StatelessWidget {
 
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text(
-                                        '평점을 등록했습니다. 마이페이지에서 확인할 수 있습니다.',
-                                      ),
+                                      content: Text('평점을 등록했습니다.'),
                                     ),
                                   );
                                 },
