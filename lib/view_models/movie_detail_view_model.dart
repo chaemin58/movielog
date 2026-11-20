@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:movielog/data/models/rating_dto.dart';
 import 'package:movielog/data/models/rating_request.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/service/rating_api_service.dart';
+import 'package:movielog/view_models/auth_view_model.dart';
 
 enum MovieDetailLoadStatus { idle, loading, success, error }
 
@@ -13,16 +15,29 @@ class MovieDetailViewModel extends ChangeNotifier {
   MovieDetailViewModel(
     this._service, {
     RatingApiService? ratingService,
+    AuthViewModel? auth,
     this.memberId,
-  }) : _ratingService = ratingService;
+  }) : _ratingService = ratingService,
+       _auth = auth;
+  final AuthViewModel? _auth;
+
+  bool _isCurrentSession(int? version) =>
+      !_disposed &&
+      (_auth == null ||
+          (_auth.sessionVersion == version &&
+              _auth.status == AuthStatus.signedIn));
   final TmdbMovieService _service;
   final RatingApiService? _ratingService;
   final int? memberId;
   RatingSubmitStatus submitStatus = RatingSubmitStatus.idle;
   String? submitMessage;
+  RatingDto? myRating;
 
   Future<void> createRating({required int score, String? comment}) async {
-    if (_disposed || submitStatus == RatingSubmitStatus.submitting) return;
+    final version = _auth?.sessionVersion;
+    if (!_isCurrentSession(version) ||
+        submitStatus == RatingSubmitStatus.submitting)
+      return;
     final id = memberId;
     if (id == null) {
       submitStatus = RatingSubmitStatus.error;
@@ -41,27 +56,28 @@ class MovieDetailViewModel extends ChangeNotifier {
     submitStatus = RatingSubmitStatus.submitting;
     submitMessage = null;
     notifyListeners();
+
     try {
-      await service.createRating(
-        memberId: id,
-        request: CreateRatingRequest(
-          movieId: currentMovie.id,
-          score: score,
-          comment: comment,
-        ),
+      final request = CreateRatingRequest(
+        movieId: currentMovie.id,
+        score: score,
+        comment: comment,
       );
-      if (_disposed) return;
+      final result = await service.createRating(request); //viewmodel의 상태에 넣어준다.
+      // 요청을 보낸 뒤 로그아웃하거나 회원이 바뀌었다면 결과를 버립니다.
+      if (!_isCurrentSession(version)) return;
+      myRating = result;
       submitStatus = RatingSubmitStatus.success;
     } on DioException catch (error) {
-      if (_disposed) return;
+      if (!_isCurrentSession(version)) return;
       submitStatus = RatingSubmitStatus.error;
       submitMessage = writeErrorMessage(error);
     } catch (_) {
-      if (_disposed) return;
+      if (!_isCurrentSession(version)) return;
       submitStatus = RatingSubmitStatus.error;
       submitMessage = '등록 결과를 확인하지 못했습니다. 평점 목록을 확인해 주세요.';
     }
-    if (!_disposed) notifyListeners();
+    if (_isCurrentSession(version)) notifyListeners();
   }
 
   TmdbMovieDetailDto? movie;

@@ -5,6 +5,7 @@ import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/screens/movie_detail_page.dart';
 import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/view_models/learning_member_session.dart';
+import 'package:movielog/view_models/auth_view_model.dart';
 import 'package:movielog/view_models/movie_detail_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -51,6 +52,7 @@ class _MovieDetailLoaderState extends State<MovieDetailLoader> {
               MovieDetailViewModel(
                   context.read<TmdbMovieService>(),
                   ratingService: context.read<RatingApiService>(),
+                  auth: context.read<AuthViewModel>(),
                   memberId: context.read<LearningMemberSession>().memberId,
                 )
                 ..movie = snapshot.data!

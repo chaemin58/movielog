@@ -145,6 +145,7 @@ class AppRouter {
                       context.read<RatingApiService>(),
                       context.read<TmdbMovieService>(),
                       id,
+                      auth: context.read<AuthViewModel>(),
                     )..load(),
                     child: const MyRatingsScreen(),
                   );
