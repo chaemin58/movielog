@@ -8,11 +8,15 @@ import 'package:movielog/widgets/profile/my_info.dart';
 import 'package:movielog/widgets/profile/stat_card_container.dart';
 import 'package:provider/provider.dart';
 
-class Profile extends StatelessWidget {
-  const Profile({super.key});
+class MyProfileScreen extends StatelessWidget {
+  const MyProfileScreen({super.key});
+  /*먼저 '내 정보를 받아와야 하는 건데, 내 정보는 세션에 저장되어 있다. */
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthViewModel>();
+    final member = auth.member;
+
     return Scaffold(
       appBar: CommonAppBar(
         title: "내 프로필",
@@ -32,7 +36,7 @@ class Profile extends StatelessWidget {
             spacing: 24,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const MyInfo(),
+              MyInfo(name: member?.nickname ?? '내 정보 확인 중'),
               const StatCardContainer(),
               Container(
                 decoration: BoxDecoration(

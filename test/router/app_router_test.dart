@@ -15,7 +15,7 @@ import 'package:movielog/screens/login_screen.dart';
 import 'package:movielog/router/app_router.dart';
 import 'package:movielog/screens/movie_home_page.dart';
 import 'package:movielog/screens/movies_page.dart';
-import 'package:movielog/screens/profile.dart';
+import 'package:movielog/screens/my_profile_screen.dart';
 import 'package:movielog/view_models/auth_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:movielog/view_models/learning_member_session.dart';
@@ -132,7 +132,7 @@ void main() {
 
     router.go('/my');
     await tester.pumpAndSettle();
-    expect(find.byType(Profile), findsOneWidget);
+    expect(find.byType(MyProfileScreen), findsOneWidget);
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
       2,
@@ -156,7 +156,7 @@ void main() {
 
     await tester.tap(find.byType(NavigationDestination).at(2));
     await tester.pumpAndSettle();
-    expect(find.byType(Profile), findsOneWidget);
+    expect(find.byType(MyProfileScreen), findsOneWidget);
 
     router.push('/my/ratings');
     await tester.pumpAndSettle();
@@ -164,7 +164,7 @@ void main() {
     expect(find.byType(NavigationBar), findsNothing);
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
-    expect(find.byType(Profile), findsOneWidget);
+    expect(find.byType(MyProfileScreen), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
 
     router.go('/movies/999999');

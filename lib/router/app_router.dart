@@ -4,7 +4,7 @@ import 'package:movielog/data/services/member_api_service.dart';
 import 'package:movielog/screens/button_comparison_screen.dart';
 import 'package:movielog/screens/edit_profile.screen.dart';
 import 'package:movielog/screens/login_screen.dart';
-import 'package:movielog/screens/profile.dart';
+import 'package:movielog/screens/my_profile_screen.dart';
 import 'package:movielog/screens/my_ratings_screen.dart';
 import 'package:movielog/screens/splash_screen.dart';
 import 'package:movielog/service/rating_api_service.dart';
@@ -23,6 +23,7 @@ import 'package:movielog/screens/movies_page.dart';
 import 'package:movielog/screens/register_screen.dart';
 import 'package:movielog/view_models/movie_home_view_model.dart';
 import 'package:movielog/view_models/movie_list_view_model.dart';
+import 'package:movielog/widgets/common/common_app_bar.dart';
 import 'package:movielog/widgets/common/custom_button.dart';
 import 'package:provider/provider.dart';
 
@@ -89,7 +90,7 @@ class AppRouter {
           ),
           GoRoute(
             path: '/my',
-            builder: (context, state) => const Profile(),
+            builder: (context, state) => const MyProfileScreen(),
             routes: [
               GoRoute(
                 path: 'profile/edit',
@@ -98,10 +99,7 @@ class AppRouter {
                   final auth = context.watch<AuthViewModel>();
                   if (auth.member == null) {
                     return Scaffold(
-                      appBar: AppBar(
-                        centerTitle: true,
-                        title: const Text('프로필 수정'),
-                      ),
+                      appBar: CommonAppBar(title: '프로필 수정'),
                       body: Center(
                         child: auth.memberStatus == MemberLoadStatus.error
                             ? CustomButton(
