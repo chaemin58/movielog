@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:movielog/core/network/auth_interceptor.dart';
 import 'package:movielog/core/network/movie_log_client.dart';
 import 'package:movielog/core/config/tmdb_config.dart';
 import 'package:movielog/data/services/auth_api_service.dart';
@@ -23,8 +24,16 @@ class MovieLogApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokenStorage = SecureTokenStorage(const FlutterSecureStorage());
+    /*final auth = AuthViewModel(
+      context.read<AuthApiService>(),
+      context.read<MemberApiService>(),
+      context.read<TokenStorage>(),
+    );
+    authClient.interceptors.add(AuthInterceptor(tokenStorage, auth));
+    아직 provider가 읽을 수 없는 위치라고 한다 ㅠ*/
+
     final publicClient = createMovieLogClient(); //interceptor 없음.
-    final authClient = createAuthMovieLogClinet(tokenStorage);
+    final authClient = createAuthMovieLogClient();
 
     return MultiProvider(
       providers: [
@@ -54,11 +63,15 @@ class MovieLogApp extends StatelessWidget {
           create: (context) => SignUpService(context.read<Dio>()),
         ),
         ChangeNotifierProvider<AuthViewModel>(
-          create: (context) => AuthViewModel(
-            context.read<AuthApiService>(),
-            context.read<MemberApiService>(),
-            context.read<TokenStorage>(),
-          ),
+          create: (context) {
+            final auth = AuthViewModel(
+              context.read<AuthApiService>(),
+              context.read<MemberApiService>(),
+              context.read<TokenStorage>(),
+            );
+            authClient.interceptors.add(AuthInterceptor(tokenStorage, auth));
+            return auth;
+          },
         ),
       ],
       child: const _MovieLogRouterApp(),

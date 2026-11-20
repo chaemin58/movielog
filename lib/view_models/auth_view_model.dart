@@ -189,6 +189,8 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> logout() => _clearCurrentSession(expired: false);
+
   void updateMember(MemberInfo updated) {
     if (_disposed || status != AuthStatus.signedIn) return null;
     member = updated; //업데이트 된 걸로 갈아끼워주기
