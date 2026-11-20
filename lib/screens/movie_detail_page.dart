@@ -101,9 +101,9 @@ class MovieDetailPage extends StatelessWidget {
                       Expanded(
                         child: CustomButton(
                           content: Text(
-                            viewModel.memberId == null ? '회원가입 후 이용' : '후기 남기기',
+                            viewModel.canCreateRating ? '후기 남기기' : '로그인 후 이용',
                           ),
-                          onPressed: viewModel.memberId == null
+                          onPressed: !viewModel.canCreateRating
                               ? null
                               : () async {
                                   final saved = await showDialog<bool>(

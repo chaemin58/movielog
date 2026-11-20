@@ -16,10 +16,10 @@ class MovieDetailViewModel extends ChangeNotifier {
     this._service, {
     RatingApiService? ratingService,
     AuthViewModel? auth,
-    this.memberId,
   }) : _ratingService = ratingService,
        _auth = auth;
   final AuthViewModel? _auth;
+  bool get canCreateRating => _auth?.status == AuthStatus.signedIn;
 
   bool _isCurrentSession(int? version) =>
       !_disposed &&
@@ -28,7 +28,6 @@ class MovieDetailViewModel extends ChangeNotifier {
               _auth.status == AuthStatus.signedIn));
   final TmdbMovieService _service;
   final RatingApiService? _ratingService;
-  final int? memberId;
   RatingSubmitStatus submitStatus = RatingSubmitStatus.idle;
   String? submitMessage;
   RatingDto? myRating;
@@ -38,13 +37,6 @@ class MovieDetailViewModel extends ChangeNotifier {
     if (!_isCurrentSession(version) ||
         submitStatus == RatingSubmitStatus.submitting)
       return;
-    final id = memberId;
-    if (id == null) {
-      submitStatus = RatingSubmitStatus.error;
-      submitMessage = '먼저 회원가입을 완료해주세요.';
-      notifyListeners();
-      return;
-    }
     final service = _ratingService;
     final currentMovie = movie;
     if (service == null || currentMovie == null) {

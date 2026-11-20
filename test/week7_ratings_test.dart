@@ -122,11 +122,7 @@ void main() {
         ),
       );
       final service = RatingApiService(dio, dio);
-      final detail = MovieDetailViewModel(
-        Movies(),
-        ratingService: service,
-        memberId: 42,
-      );
+      final detail = MovieDetailViewModel(Movies(), ratingService: service);
       addTearDown(detail.dispose);
       await detail.load(123);
       await detail.createRating(score: 5, comment: '좋아요');

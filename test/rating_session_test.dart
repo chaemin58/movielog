@@ -64,26 +64,29 @@ void main() {
   });
 
   for (final changeSession in [false, true]) {
-    test('create result: session changed = $changeSession', () async {
-      final vm = MovieDetailViewModel(
-        TmdbMovieService(Dio()),
-        ratingService: service,
-        auth: auth,
-        memberId: 1,
-      )..movie = TmdbMovieDetailDto.fromJson({'id': 123, 'title': '영화'});
-      addTearDown(vm.dispose);
-      final pending = vm.createRating(score: 4);
-      if (changeSession) {
-        await auth.logout();
-        auth.status = AuthStatus.signedIn;
-      }
-      var notifications = 0;
-      vm.addListener(() => notifications++);
-      service.created.complete(rating);
-      await pending;
-      expect(vm.myRating, changeSession ? isNull : same(rating));
-      expect(notifications, changeSession ? 0 : 1);
-    });
+    test(
+      'create without learning member ID: session changed = $changeSession',
+      () async {
+        final vm = MovieDetailViewModel(
+          TmdbMovieService(Dio()),
+          ratingService: service,
+          auth: auth,
+        )..movie = TmdbMovieDetailDto.fromJson({'id': 123, 'title': '영화'});
+        addTearDown(vm.dispose);
+        expect(vm.canCreateRating, isTrue);
+        final pending = vm.createRating(score: 4);
+        if (changeSession) {
+          await auth.logout();
+          auth.status = AuthStatus.signedIn;
+        }
+        var notifications = 0;
+        vm.addListener(() => notifications++);
+        service.created.complete(rating);
+        await pending;
+        expect(vm.myRating, changeSession ? isNull : same(rating));
+        expect(notifications, changeSession ? 0 : 1);
+      },
+    );
   }
 
   test('late list response is ignored after logout', () async {
