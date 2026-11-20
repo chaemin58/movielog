@@ -19,7 +19,7 @@ class MyInfo extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 62,
-          //사진이 있으면 사진이 아이콘을덮는 아이디어
+          //사진이 있으면 사진이 아이콘을 덮는 아이디어
           foregroundImage:
               profileImageUrl != null && profileImageUrl!.isNotEmpty
               ? NetworkImage(profileImageUrl!)
