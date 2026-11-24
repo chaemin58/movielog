@@ -11,7 +11,6 @@ class MyInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorTheme = Theme.of(context).colorScheme;
-    final imgUrl = profileImageUrl?.trim();
 
     return Column(
       spacing: 8,
