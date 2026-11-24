@@ -27,7 +27,7 @@ class MyRatingsScreen extends StatelessWidget {
         ),
       ),
     );
-    if (!context.mounted || saved != true) return;
+    if (!context.mounted || !vm.isSessionActive || saved != true) return;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(vm.refreshWarning ?? '평점을 수정했습니다.')));
@@ -42,7 +42,7 @@ class MyRatingsScreen extends StatelessWidget {
         onConfirm: () => vm.deleteRating(rating.ratingId),
       ),
     );
-    if (!context.mounted || deleted != true) return;
+    if (!context.mounted || !vm.isSessionActive || deleted != true) return;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(vm.refreshWarning ?? '평점을 삭제했습니다.')));
