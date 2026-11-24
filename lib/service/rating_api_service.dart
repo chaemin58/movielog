@@ -27,9 +27,7 @@ class RatingApiService {
   final Dio _authDio;
 
   Future<List<RatingDto>> fetchMyRatings(int memberId) async {
-    final response = await _publicDio.get(
-      '/v7/members/${memberId}/ratings',
-    ); //왜 publicDio?
+    final response = await _publicDio.get('/v8/members/${memberId}/ratings');
     final list = response.data as List<dynamic>;
     return list
         .map((item) => RatingDto.fromJson(item as Map<String, dynamic>))
@@ -37,7 +35,7 @@ class RatingApiService {
   }
 
   Future<RatingDto> createRating(CreateRatingRequest request) async {
-    final response = await _authDio.post('/v7/ratings', data: request.toJson());
+    final response = await _authDio.post('/v8/ratings', data: request.toJson());
     return parseRatingResult(response.data);
   }
 
@@ -48,7 +46,7 @@ class RatingApiService {
     String? comment,
   }) async {
     final response = await _authDio.patch(
-      '/v7/ratings/$ratingId',
+      '/v8/ratings/$ratingId',
       // 기존 코멘트는 그대로 보내고, 지웠다면 null을 보냅니다.
       data: {'score': score, 'comment': comment},
     );
@@ -62,7 +60,7 @@ class RatingApiService {
     required int memberId,
     required int ratingId,
   }) async {
-    final response = await _authDio.delete('/v7/ratings/$ratingId');
+    final response = await _authDio.delete('/v8/ratings/$ratingId');
     if (response.statusCode != 200) {
       throw StateError('예상하지 못한 삭제 응답 :${response.statusCode}');
     }
