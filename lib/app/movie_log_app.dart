@@ -24,13 +24,6 @@ class MovieLogApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokenStorage = SecureTokenStorage(const FlutterSecureStorage());
-    /*final auth = AuthViewModel(
-      context.read<AuthApiService>(),
-      context.read<MemberApiService>(),
-      context.read<TokenStorage>(),
-    );
-    authClient.interceptors.add(AuthInterceptor(tokenStorage, auth));
-    아직 provider가 읽을 수 없는 위치라고 한다 ㅠ*/
 
     final publicClient = createMovieLogClient(); //interceptor 없음.
     final authClient = createAuthMovieLogClient();
