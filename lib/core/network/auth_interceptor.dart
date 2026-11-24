@@ -15,6 +15,8 @@ class AuthInterceptor extends Interceptor {
     return options.uri.host == 'workbook.devnoco.com' &&
         (path == '/v8/members/me' ||
             path == '/v8/ratings' ||
+            path == '/v8/favorites' ||
+            path.startsWith('/v8/favorites/') ||
             path.startsWith('/v8/ratings/'));
   }
 
