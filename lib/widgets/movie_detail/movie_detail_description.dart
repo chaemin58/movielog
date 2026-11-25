@@ -3,15 +3,25 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
 import 'package:movielog/theme/app_colors.dart';
 import 'package:movielog/utils/format.dart';
+import 'package:movielog/widgets/movie_detail/favorites.dart';
 import 'package:movielog/widgets/movie_detail/movie_description_chip.dart';
 
-class MovieDetailDescription extends StatelessWidget {
+class MovieDetailDescription extends StatefulWidget {
   const MovieDetailDescription({super.key, required this.movie});
 
   final TmdbMovieDetailDto movie;
 
   @override
+  State<MovieDetailDescription> createState() => _MovieDetailDescription();
+}
+
+class _MovieDetailDescription extends State<MovieDetailDescription> {
+  bool _isChecked = false;
+
+  @override
   Widget build(BuildContext context) {
+    final movie = widget.movie;
+
     final year = DateTime.tryParse(movie.releaseDate ?? '')?.year;
     final genreNames = movie.genres.map((genre) => genre.name).toList();
     final rating = movie.voteAverage / 2;
@@ -20,7 +30,17 @@ class MovieDetailDescription extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(movie.title, style: Theme.of(context).textTheme.titleMedium),
+          Row(
+            children: [
+              Text(movie.title, style: Theme.of(context).textTheme.titleMedium),
+              Favorites(
+                handleSubmitFavorite: () {
+                  setState(() => _isChecked = !_isChecked);
+                },
+                isChecked: _isChecked,
+              ),
+            ],
+          ),
           Text(
             [
               if (year != null) '$year',
