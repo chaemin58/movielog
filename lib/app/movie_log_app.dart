@@ -11,6 +11,7 @@ import 'package:movielog/data/services/member_check_service.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/data/storage/token_storage.dart';
 import 'package:movielog/router/app_router.dart';
+import 'package:movielog/service/favorite_api_service.dart';
 import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/service/sign_up_service.dart';
 import 'package:movielog/theme/app_theme.dart';
@@ -30,6 +31,9 @@ class MovieLogApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
+        Provider<FavoriteApiService>(
+          create:(_) => FavoriteApiService(authClient),
+        ),
         Provider<TokenStorage>.value(value: tokenStorage),
         Provider<Dio>(
           create: (_) => createMovieLogClient(),
