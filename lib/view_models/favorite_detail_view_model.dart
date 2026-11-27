@@ -1,3 +1,4 @@
+import 'package:movielog/core/network/favorite_error_message.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:movielog/core/network/api_error.dart';
@@ -52,12 +53,12 @@ class FavoriteDetailViewModel extends ChangeNotifier with SafeNotify {
       isFavorite = result.isFavorite;
       hasLoadedStatus = true;
       _needsSync = false;
-    } catch (_) {
+    } catch (error) {
       if (!sessionGuard.isCurrent(snap.generation, accountId) || isDisposed) {
         return;
       }
 
-      errorMessage = '즐겨찾기 여부를 확인하지 못했습니다.';
+      errorMessage = favoriteErrorMessage(error);
     } finally {
       if (sessionGuard.isCurrent(snap.generation, accountId) && !isDisposed) {
         isLoading = false;

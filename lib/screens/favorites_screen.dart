@@ -19,7 +19,7 @@ class FavoritesScreen extends StatelessWidget {
         LoadPhase.empty => const Center(child: Text('즐겨찾기한 영화가 없습니다.')),
         LoadPhase.error => Center(
           child: MovieErrorGrid(
-            message: '즐겨찾기를 불러오지 못했습니다.',
+            message: vm.errorMessage ?? '즐겨찾기를 불러오지 못했습니다.',
             onRetry: vm.refresh,
           ),
         ),

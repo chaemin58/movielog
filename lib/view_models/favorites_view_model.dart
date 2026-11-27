@@ -1,3 +1,4 @@
+import 'package:movielog/core/network/favorite_error_message.dart';
 import 'package:flutter/foundation.dart';
 import 'package:movielog/core/session/session_guard.dart';
 import 'package:movielog/core/utils/map_bounded.dart';
@@ -22,6 +23,7 @@ class FavoritesViewModel extends ChangeNotifier with SafeNotify {
   List<FavoriteListItem> items = [];
   final Set<int> retrying = {};
   LoadPhase phase = LoadPhase.idle;
+  String? errorMessage;
   bool _current(int generation) =>
       !isDisposed &&
       generation == _generation &&
@@ -54,6 +56,7 @@ class FavoritesViewModel extends ChangeNotifier with SafeNotify {
     final generation = ++_generation;
     items = [];
     retrying.clear();
+    errorMessage = null;
     phase = LoadPhase.loading;
     notifyIfAlive();
     try {
@@ -66,8 +69,9 @@ class FavoritesViewModel extends ChangeNotifier with SafeNotify {
       if (!_current(generation)) return;
       items = enriched;
       phase = items.isEmpty ? LoadPhase.empty : LoadPhase.ready;
-    } catch (_) {
+    } catch (error) {
       if (!_current(generation)) return;
+      errorMessage = favoriteErrorMessage(error);
       phase = LoadPhase.error;
     }
     if (_current(generation)) notifyIfAlive();
