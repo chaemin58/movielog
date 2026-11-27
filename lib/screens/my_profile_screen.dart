@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:movielog/theme/app_colors.dart';
 import 'package:movielog/view_models/auth_view_model.dart';
 import 'package:movielog/widgets/common/common_app_bar.dart';
 import 'package:movielog/widgets/profile/favorite_genre_chip_container.dart';
 import 'package:movielog/widgets/profile/my_info.dart';
+import 'package:movielog/widgets/profile/profile_menu.dart';
 import 'package:movielog/widgets/profile/stat_card_container.dart';
 import 'package:provider/provider.dart';
 
@@ -36,74 +35,22 @@ class MyProfileScreen extends StatelessWidget {
             spacing: 24,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              MyInfo(name: member?.nickname ?? '내 정보 확인 중'),
+              MyInfo(
+                name: member?.nickname ?? '내 정보 확인 중',
+                email: member?.email ?? '이메일을 확인할 수 없습니다.',
+              ),
               const StatCardContainer(),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary200),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: InkWell(
-                  onTap: () => context.push('/my/ratings'),
-                  borderRadius: BorderRadius.circular(8),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: SizedBox(
-                      height: 56,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '내가 등록한 평점',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            color: AppColors.primary600,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+              const Column(
+                spacing: 8,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ProfileMenu(menuTitle: '내가 등록한 평점'),
+                  ProfileMenu(menuTitle: '내 즐겨찾기', route: '/my/favorites'),
+                ],
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: FavoriteGenreChipContainer(),
-              ),
-
-              InkWell(
-                onTap: () => context.push('/register'),
-                borderRadius: BorderRadius.circular(8),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: SizedBox(
-                    height: 56,
-                    child: Row(
-                      children: [
-                        Expanded(child: Text('회원가입 화면')),
-                        Icon(Icons.chevron_right),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () => context.push('/my/buttons'),
-                borderRadius: BorderRadius.circular(8),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: SizedBox(
-                    height: 56,
-                    child: Row(
-                      children: [
-                        Expanded(child: Text('버튼 크기 비교 화면')),
-                        Icon(Icons.chevron_right),
-                      ],
-                    ),
-                  ),
-                ),
               ),
             ],
           ),

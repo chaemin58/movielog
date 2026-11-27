@@ -40,18 +40,6 @@ class MyRatingsViewModel extends ChangeNotifier {
   String? refreshWarning;
   bool isWriting = false;
 
-  //load()로 재조회
-  Future<void> _refreshAfterWrite() async {
-    await load();
-    if (_inactive) return;
-    if (status == MyRatingsLoadStatus.error) {
-      refreshWarning = '저장은 완료됐지만 목록을 불러오지 못했습니다. 조회만 다시 시도해 주세요.';
-      notifyListeners();
-    } else {
-      refreshWarning = null;
-    }
-  }
-
   //평점 수정
   Future<void> updateRating({
     required int ratingId,
@@ -71,12 +59,10 @@ class MyRatingsViewModel extends ChangeNotifier {
       if (_inactive) return;
       message = writeErrorMessage(error);
       notifyListeners();
-      if (shouldRefreshAfterRatingError(error)) await load();
       if (_inactive) return;
       rethrow;
     }
     if (_inactive) return;
-    await _refreshAfterWrite(); // GET 실패는 저장 실패로 다시 던지지 않습니다.
   }
 
   //평점 삭제
@@ -89,12 +75,10 @@ class MyRatingsViewModel extends ChangeNotifier {
       if (_inactive) return;
       message = writeErrorMessage(error);
       notifyListeners();
-      if (shouldRefreshAfterRatingError(error)) await load();
       if (_inactive) return;
       rethrow;
     }
     if (_inactive) return;
-    await _refreshAfterWrite();
   }
 
   Future<void> _writeAndRefresh(Future<void> Function() write) async {

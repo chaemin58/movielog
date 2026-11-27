@@ -9,7 +9,7 @@ class MemberCheckService {
   Future<bool> checkNickname(String nickname) async {
     //입력값을 url에 넣을 수 있도록 준비한다.
     final encoded = Uri.encodeComponent(nickname.trim());
-    final response = await _dio.get('/v5/members/nickname/$encoded');
+    final response = await _dio.get('/v8/members/nickname/$encoded');
 
     //response.data에서 서버 응답 데이터를 꺼냄.
     return CheckResult.fromJson(response.data as Map<String, dynamic>)
@@ -18,7 +18,7 @@ class MemberCheckService {
 
   Future<bool> checkEmail(String email) async {
     final encoded = Uri.encodeComponent(email.trim());
-    final response = await _dio.get('/v5/members/email/$encoded');
+    final response = await _dio.get('/v8/members/email/$encoded');
 
     return CheckResult.fromJson(response.data as Map<String, dynamic>)
         .available;

@@ -1,3 +1,4 @@
+import 'package:go_router/go_router.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -76,12 +77,18 @@ void main() {
   testWidgets(
     'password local validator and server error both work and clear on edit',
     (tester) async {
-      final vm = await ready(400, '비밀번호 형식이 올바르지 않습니다.');
+      final vm = (await tester.runAsync(
+        () => ready(400, '비밀번호 형식이 올바르지 않습니다.'),
+      ))!;
       addTearDown(vm.dispose);
+      final router = GoRouter(
+        routes: [GoRoute(path: '/', builder: (_, _) => const RegisterScreen())],
+      );
+      addTearDown(router.dispose);
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
           value: vm,
-          child: const MaterialApp(home: RegisterScreen()),
+          child: MaterialApp.router(routerConfig: router),
         ),
       );
       final password = find.byType(TextFormField).last;
@@ -91,7 +98,7 @@ void main() {
       await tester.enterText(password, request.password);
       await tester.pump();
       expect(find.textContaining('8자 이상'), findsNothing);
-      await vm.submit(request);
+      await tester.runAsync(() => vm.submit(request));
       await tester.pump();
       expect(find.text('비밀번호 형식이 올바르지 않습니다.'), findsOneWidget);
       await tester.enterText(password, 'Another123!');

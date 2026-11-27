@@ -33,8 +33,9 @@ class EditProfileViewModel extends ChangeNotifier {
     final version = _auth.sessionVersion;
     if (_disposed ||
         _auth.status != AuthStatus.signedIn ||
-        _auth.member == null)
+        _auth.member == null) {
       return false;
+    }
     final nickname = input.trim();
     nicknameError = validateNickname(nickname);
     if (nicknameError != null) {
@@ -58,8 +59,9 @@ class EditProfileViewModel extends ChangeNotifier {
       final updated = await _memberApi.updateNickname(nickname);
       if (_disposed ||
           version != _auth.sessionVersion ||
-          _auth.status != AuthStatus.signedIn)
+          _auth.status != AuthStatus.signedIn) {
         return false;
+      }
       _auth.updateMember(updated); // 마이페이지가 바로 새 닉네임을 보여줍니다.
       status = EditProfileStatus.success;
       _notify();
@@ -67,8 +69,9 @@ class EditProfileViewModel extends ChangeNotifier {
     } on DioException catch (error) {
       if (_disposed ||
           version != _auth.sessionVersion ||
-          _auth.status != AuthStatus.signedIn)
+          _auth.status != AuthStatus.signedIn) {
         return false;
+      }
       final code = apiErrorCode(error);
       status = EditProfileStatus.failure;
       switch (code) {

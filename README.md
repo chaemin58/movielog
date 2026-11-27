@@ -1,8 +1,8 @@
 # MovieLog
 
-Flutter로 만드는 영화 조회·평점 기록 앱입니다. UMC Flutter 워크북을 따라 UI 구성, TMDB 연동, 평점 CRUD를 구현하고 있으며, 현재 **8주차 JWT 로그인 및 세션 복원**을 진행 중입니다.
+Flutter로 만드는 영화 조회·평점 기록 앱입니다. UMC Flutter 워크북을 따라 UI 구성, TMDB 연동, 평점 CRUD를 구현하고 있으며, 현재 **9주차 즐겨찾기·검색·페이지네이션 Required Mission**까지 구현했습니다.
 
-> 현재 코드에 구현된 내용과 남은 작업을 구분합니다. 8주차 전체 완료나 실제 기기 검증 완료를 의미하지 않습니다.
+> 챌린지는 포함하지 않습니다. 자동 테스트와 실제 서버·기기 수동 검증은 구분합니다.
 
 ## 주요 기능
 
@@ -67,11 +67,11 @@ assets/              # 폰트, 로고, 아이콘, 실습 이미지
 ### 로그인과 내 정보
 
 ```text
-POST /v7/auth/login
+POST /v8/auth/login
 → accessToken 저장
 → signedIn으로 전환
 → MainScreen에서 loadMember() 호출
-→ GET /v7/members/me
+→ GET /v8/members/me
 → AuthViewModel.member 저장
 → 마이페이지가 member를 구독해 닉네임 표시
 ```
@@ -92,11 +92,11 @@ POST /v7/auth/login
 
 | 동작 | 경로 | 인증 |
 | --- | --- | --- |
-| 공개 회원별 평점 조회 | `GET /v7/members/{memberId}/ratings` | 없음 |
-| 평점 등록 | `POST /v7/ratings` | MovieLog JWT |
-| 평점 수정 | `PATCH /v7/ratings/{ratingId}` | MovieLog JWT |
-| 평점 삭제 | `DELETE /v7/ratings/{ratingId}` | MovieLog JWT |
-| 내 정보 조회·닉네임 수정 | `GET /v7/members/me`, `PATCH /v7/members/me` | MovieLog JWT |
+| 공개 회원별 평점 조회 | `GET /v8/members/{memberId}/ratings` | 없음 |
+| 평점 등록 | `POST /v8/ratings` | MovieLog JWT |
+| 평점 수정 | `PATCH /v8/ratings/{ratingId}` | MovieLog JWT |
+| 평점 삭제 | `DELETE /v8/ratings/{ratingId}` | MovieLog JWT |
+| 내 정보 조회·닉네임 수정 | `GET /v8/members/me`, `PATCH /v8/members/me` | MovieLog JWT |
 
 **로그인과 GET me 응답에는 `memberId`가 없으며, 토큰 기반 내 평점 목록 GET도 제공되지 않습니다.** 공개 조회는 별도로 알고 있는 회원 ID가 필요합니다. JWT의 명세에 없는 claim을 추정해 회원 ID로 사용하지 않습니다.
 
@@ -116,7 +116,7 @@ POST /v7/auth/login
 - `/my/profile/edit` 화면과 PATCH me 서비스, 성공 시 `member` 교체 로직
 - 닉네임 2~12자 검증, `MEMBER409_1` 중복 입력 유지, 네트워크 실패 후 재시도 로직
 - 마이페이지 프로필 수정 버튼의 `/my/profile/edit` 연결
-- 공개 회원별 평점 조회 경로 및 DELETE 성공 코드 200 적용
+- 공개 회원별 평점 조회 경로 및 DELETE 성공 코드 204 적용
 
 ### 남은 작업과 검증
 
@@ -127,7 +127,7 @@ POST /v7/auth/login
 - [ ] 평점 오류 처리를 `RATING403_1`, `RATING404_1`, `RATING409_1` 등 도메인 코드에 맞게 정리
 - [ ] 로그인·재시작·프로필 변경·만료·로그아웃을 실제 서버와 선택한 기기에서 검증
 - [ ] 403·409·네트워크 실패 시 로그인 유지, 실제 401 만료 안내 검증
-- [ ] 기존 평점 테스트를 변경된 API 계약에 맞게 정비하고 중복 조회 문제 해결
+- [x] 기존 평점 테스트를 변경된 API 계약에 맞게 정비하고 중복 조회 문제 해결
 
 프로필 이미지 URL은 위젯의 표시 옵션입니다. 현재 GET me에는 사진 URL이 없고, 프로필 사진 업로드·저장 API 연동은 구현되어 있지 않습니다.
 
@@ -139,9 +139,18 @@ flutter test
 flutter test test/rating_session_test.dart
 ```
 
-최근 관련 테스트 실행 기록은 총 **11개 통과, 2개 실패**입니다 (`rating_session_test.dart`, `week7_ratings_test.dart`, `router/app_router_test.dart`). 세션 전환 회귀 테스트 4개는 통과했습니다. 실패 항목은 수정 후 목록 재조회 횟수 불일치와 기존 v6·빈 result 응답을 기대하는 평점 테스트입니다.
+9주차 자동 검증은 정적 분석과 전체 테스트로 수행합니다. 실제 서버·기기 수동 검증은 별도이며, 현재 실행 환경에서 MovieLog 호스트 DNS 조회가 실패했습니다. PR 본문과 수동 확인 항목은 [9주차 PR 본문](docs/week9-pr.md)에 정리했습니다.
 
-이 기록은 README 수정 전에 실행한 결과이며, 이후 프로필 화면 변경까지 포함한 전체 테스트 통과나 실제 기기 검증을 의미하지 않습니다. 임시 `expireSession()` 버튼은 화면 이동·Snackbar 확인에 사용할 수 있지만 실제 API의 401 처리 검증을 대체하지 않습니다.
+## 9주차 Required Mission
+
+- 상세 제목 옆 북마크: 서버 여부 조회, 등록·해제, 버튼 로딩, 실패 시 상태 유지, 409/404 재조회
+- 마이페이지의 평점 행 아래 내 즐겨찾기: JWT 목록과 TMDB 정보를 결합하고 상세 복귀 시 갱신
+- 영화 정보는 최대 5개씩 조회하며 일부 실패는 placeholder와 카드별 재조회로 처리
+- 영화 목록: 첫 페이지, 더 보기, 동일 페이지 재시도, 중복 영화 제거, 장르 변경 시 초기화
+- 검색: `/movies/search`에서 제출 시 요청, 공백 검색 차단, 별도 페이지 상태와 더 보기
+- 검색·즐겨찾기 화면은 하단 탭 없이 뒤로가기를 제공
+- 세션별 Provider key와 요청 generation으로 계정 전환·로그아웃·늦은 응답 보호
+- 홈의 인기 영화 5개 조회는 유지. debounce·무한 스크롤·평점/즐겨찾기 통합 저장은 제외
 
 ## 에셋과 라이선스
 

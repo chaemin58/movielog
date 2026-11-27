@@ -90,7 +90,7 @@ void main() {
   );
 
   test(
-    'v6 paths, wrapper writes, null comment and empty DELETE body',
+    'v8 paths, wrapper writes, null comment and empty DELETE body',
     () async {
       final dio = Dio();
       final requests = <RequestOptions>[];
@@ -114,7 +114,14 @@ void main() {
                         'isSuccess': true,
                         'code': 'OK',
                         'message': '완료',
-                        'result': null,
+                        'result': options.method == 'POST'
+                            ? {
+                                'ratingId': 7,
+                                'movieId': 123,
+                                'score': 5,
+                                'createdAt': '2026-11-27T00:00:00Z',
+                              }
+                            : null,
                       },
               ),
             );
@@ -127,7 +134,7 @@ void main() {
       await detail.load(123);
       await detail.createRating(score: 5, comment: '좋아요');
       expect(detail.submitStatus, RatingSubmitStatus.success);
-      expect(requests.first.path, '/v6/members/42/ratings');
+      expect(requests.first.path, '/v8/ratings');
       expect(requests.first.data['movieId'], 123);
       await service.updateRating(
         memberId: 42,
@@ -139,7 +146,7 @@ void main() {
       await service.updateRating(memberId: 42, ratingId: 7, score: 3);
       expect(requests.last.data, {'score': 3, 'comment': null});
       await service.deleteRating(memberId: 42, ratingId: 7);
-      expect(requests.last.path, '/v6/members/42/ratings/7');
+      expect(requests.last.path, '/v8/ratings/7');
       expect(await service.fetchMyRatings(42), isEmpty);
     },
   );

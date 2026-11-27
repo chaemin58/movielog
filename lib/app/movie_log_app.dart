@@ -5,12 +5,15 @@ import 'package:go_router/go_router.dart';
 import 'package:movielog/core/network/auth_interceptor.dart';
 import 'package:movielog/core/network/movie_log_client.dart';
 import 'package:movielog/core/config/tmdb_config.dart';
+import 'package:movielog/core/session/auth_session_bridge.dart';
+import 'package:movielog/core/session/session_guard.dart';
 import 'package:movielog/data/services/auth_api_service.dart';
 import 'package:movielog/data/services/member_api_service.dart';
 import 'package:movielog/data/services/member_check_service.dart';
 import 'package:movielog/data/services/tmdb_movie_service.dart';
 import 'package:movielog/data/storage/token_storage.dart';
 import 'package:movielog/router/app_router.dart';
+import 'package:movielog/service/favorite_api_service.dart';
 import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/service/sign_up_service.dart';
 import 'package:movielog/theme/app_theme.dart';
@@ -18,33 +21,37 @@ import 'package:movielog/view_models/auth_view_model.dart';
 import 'package:movielog/view_models/learning_member_session.dart';
 import 'package:provider/provider.dart';
 
-class MovieLogApp extends StatelessWidget {
+class MovieLogApp extends StatefulWidget {
   const MovieLogApp({super.key});
 
   @override
+  State<MovieLogApp> createState() => _MovieLogAppState();
+}
+
+class _MovieLogAppState extends State<MovieLogApp> {
+  final tokenStorage = SecureTokenStorage(const FlutterSecureStorage());
+  late final Dio publicClient = createMovieLogClient();
+  late final Dio authClient = createAuthMovieLogClient();
+  late final Dio tmdbClient = createTmdbClient();
+
+  @override
+  void dispose() {
+    publicClient.close();
+    authClient.close();
+    tmdbClient.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final tokenStorage = SecureTokenStorage(const FlutterSecureStorage());
-    /*final auth = AuthViewModel(
-      context.read<AuthApiService>(),
-      context.read<MemberApiService>(),
-      context.read<TokenStorage>(),
-    );
-    authClient.interceptors.add(AuthInterceptor(tokenStorage, auth));
-    아직 provider가 읽을 수 없는 위치라고 한다 ㅠ*/
-
-    final publicClient = createMovieLogClient(); //interceptor 없음.
-    final authClient = createAuthMovieLogClient();
-
     return MultiProvider(
       providers: [
+        Provider<FavoriteApiService>(
+          create: (_) => FavoriteApiService(authClient),
+        ),
         Provider<TokenStorage>.value(value: tokenStorage),
-        Provider<Dio>(
-          create: (_) => createMovieLogClient(),
-          dispose: (_, client) => client.close(),
-        ),
-        Provider<TmdbMovieService>(
-          create: (_) => TmdbMovieService(createTmdbClient()),
-        ),
+        Provider<Dio>.value(value: publicClient),
+        Provider<TmdbMovieService>(create: (_) => TmdbMovieService(tmdbClient)),
         //공개
         Provider<AuthApiService>(create: (_) => AuthApiService(publicClient)),
         //보호
@@ -63,6 +70,7 @@ class MovieLogApp extends StatelessWidget {
           create: (context) => SignUpService(context.read<Dio>()),
         ),
         ChangeNotifierProvider<AuthViewModel>(
+          lazy: false,
           create: (context) {
             final auth = AuthViewModel(
               context.read<AuthApiService>(),
@@ -72,6 +80,22 @@ class MovieLogApp extends StatelessWidget {
             authClient.interceptors.add(AuthInterceptor(tokenStorage, auth));
             return auth;
           },
+        ),
+        Provider<AuthSessionBridge>(
+          create: (context) {
+            final auth = context.read<AuthViewModel>();
+            return AuthSessionBridge(
+              authSignals: auth,
+              sessionVersion: () => auth.sessionVersion,
+              verifiedEmail: () => auth.status == AuthStatus.signedIn
+                  ? auth.member?.email
+                  : null,
+            );
+          },
+          dispose: (_, bridge) => bridge.dispose(),
+        ),
+        Provider<SessionGuard>(
+          create: (context) => context.read<AuthSessionBridge>().guard,
         ),
       ],
       child: const _MovieLogRouterApp(),

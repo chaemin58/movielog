@@ -14,10 +14,9 @@ enum RatingSubmitStatus { idle, submitting, success, error }
 class MovieDetailViewModel extends ChangeNotifier {
   MovieDetailViewModel(
     this._service, {
-    RatingApiService? ratingService,
-    AuthViewModel? auth,
-  }) : _ratingService = ratingService,
-       _auth = auth;
+    this._ratingService,
+    this._auth,
+  });
   final AuthViewModel? _auth;
   bool get canCreateRating => _auth?.status == AuthStatus.signedIn;
 
@@ -35,8 +34,9 @@ class MovieDetailViewModel extends ChangeNotifier {
   Future<void> createRating({required int score, String? comment}) async {
     final version = _auth?.sessionVersion;
     if (!_isCurrentSession(version) ||
-        submitStatus == RatingSubmitStatus.submitting)
+        submitStatus == RatingSubmitStatus.submitting) {
       return;
+    }
     final service = _ratingService;
     final currentMovie = movie;
     if (service == null || currentMovie == null) {

@@ -92,14 +92,6 @@ class MovieDetailPage extends StatelessWidget {
                     children: [
                       Expanded(
                         child: CustomButton(
-                          content: const Text('즐겨찾기'),
-                          onPressed: () {},
-                          variant: AppButtonVariant.secondary,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: CustomButton(
                           content: Text(
                             viewModel.canCreateRating ? '후기 남기기' : '로그인 후 이용',
                           ),

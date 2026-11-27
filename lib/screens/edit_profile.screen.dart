@@ -1,6 +1,5 @@
 // lib/screens/edit_profile_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movielog/view_models/auth_view_model.dart';
 import 'package:movielog/view_models/edit_profile_view_model.dart';

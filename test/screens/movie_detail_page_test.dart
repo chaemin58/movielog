@@ -1,3 +1,7 @@
+import 'package:movielog/core/session/session_guard.dart';
+import 'package:movielog/service/favorite_api_service.dart';
+import 'package:movielog/view_models/favorite_detail_view_model.dart';
+
 import 'dart:async';
 
 import 'package:dio/dio.dart';
@@ -67,7 +71,15 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider<MovieDetailViewModel>(
         create: (_) => MovieDetailViewModel(service)..load(123),
-        child: const MaterialApp(home: MovieDetailPage(movieId: '123')),
+        child: ChangeNotifierProvider(
+          create: (_) => FavoriteDetailViewModel(
+            movieId: 123,
+            favoriteApi: FavoriteApiService(Dio()),
+            sessionGuard: SessionGuard()..startSession('test'),
+            accountId: 'test',
+          )..hasLoadedStatus = true,
+          child: const MaterialApp(home: MovieDetailPage(movieId: '123')),
+        ),
       ),
     );
   }
