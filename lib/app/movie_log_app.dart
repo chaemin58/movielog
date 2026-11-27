@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:movielog/core/network/auth_interceptor.dart';
 import 'package:movielog/core/network/movie_log_client.dart';
 import 'package:movielog/core/config/tmdb_config.dart';
+import 'package:movielog/core/session/auth_session_bridge.dart';
+import 'package:movielog/core/session/session_guard.dart';
 import 'package:movielog/data/services/auth_api_service.dart';
 import 'package:movielog/data/services/member_api_service.dart';
 import 'package:movielog/data/services/member_check_service.dart';
@@ -69,6 +71,21 @@ class MovieLogApp extends StatelessWidget {
             authClient.interceptors.add(AuthInterceptor(tokenStorage, auth));
             return auth;
           },
+        ),
+        Provider<AuthSessionBridge>(
+          create: (context) {
+            final auth = context.read<AuthViewModel>();
+            return AuthSessionBridge(
+              authSignals: auth,
+              sessionVersion: () => auth.sessionVersion,
+              verifiedEmail: () =>
+                  auth.status == AuthStatus.signedIn ? auth.member?.email : null,
+            );
+          },
+          dispose: (_, bridge) => bridge.dispose(),
+        ),
+        Provider<SessionGuard>(
+          create: (context) => context.read<AuthSessionBridge>().guard,
         ),
       ],
       child: const _MovieLogRouterApp(),
