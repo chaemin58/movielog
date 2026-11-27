@@ -13,23 +13,29 @@ class ProfileMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => context.push(route),
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: SizedBox(
-          height: 56,
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  menuTitle,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.primary200),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        onTap: () => context.push(route),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: SizedBox(
+            height: 56,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    menuTitle,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              Icon(Icons.chevron_right, color: AppColors.primary600),
-            ],
+                Icon(Icons.chevron_right, color: AppColors.primary600),
+              ],
+            ),
           ),
         ),
       ),

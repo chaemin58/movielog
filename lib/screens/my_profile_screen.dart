@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:movielog/theme/app_colors.dart';
 import 'package:movielog/view_models/auth_view_model.dart';
 import 'package:movielog/widgets/common/common_app_bar.dart';
 import 'package:movielog/widgets/profile/favorite_genre_chip_container.dart';
@@ -41,18 +40,13 @@ class MyProfileScreen extends StatelessWidget {
                 email: member?.email ?? '이메일을 확인할 수 없습니다.',
               ),
               const StatCardContainer(),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary200),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Column(
-                  children: [
-                    ProfileMenu(menuTitle: '내가 등록한 평점'),
-                    Divider(height: 1),
-                    ProfileMenu(menuTitle: '내 즐겨찾기', route: '/my/favorites'),
-                  ],
-                ),
+              const Column(
+                spacing: 8,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ProfileMenu(menuTitle: '내가 등록한 평점'),
+                  ProfileMenu(menuTitle: '내 즐겨찾기', route: '/my/favorites'),
+                ],
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
