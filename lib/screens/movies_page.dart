@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:movielog/widgets/movies/movie_page_footer.dart';
 import 'package:movielog/view_models/movie_list_view_model.dart';
 import 'package:movielog/widgets/common/common_app_bar.dart';
 import 'package:movielog/widgets/movies/choice_chip_container.dart';
@@ -13,7 +15,16 @@ class MoviesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: '영화'),
+      appBar: CommonAppBar(
+        title: '영화',
+        actions: [
+          IconButton(
+            tooltip: '영화 검색',
+            icon: const Icon(Icons.search),
+            onPressed: () => context.push('/movies/search'),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -51,12 +62,17 @@ class MoviesPage extends StatelessWidget {
                         context.read<MovieListViewModel>().loadInitial(),
                   ),
                   MovieListLoadStatus.empty => const MovieEmptyGrid(),
-                  MovieListLoadStatus.success => MovieGrid(
-                    movies: viewModel.movies,
-                    genreNames: {
-                      for (final genre in viewModel.genres)
-                        genre.id: genre.name,
-                    },
+                  MovieListLoadStatus.success => Column(
+                    children: [
+                      MovieGrid(
+                        movies: viewModel.movies,
+                        genreNames: {
+                          for (final genre in viewModel.genres)
+                            genre.id: genre.name,
+                        },
+                      ),
+                      MoviePageFooter(viewModel: viewModel),
+                    ],
                   ),
                 };
               },

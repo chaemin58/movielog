@@ -25,7 +25,7 @@ class FavoriteApiService {
 
   //내 즐겨찾기 조회
   Future<List<FavoriteResponseDto>> fetchMyFavorites() async {
-    final response = await _dio.get('/v8/favorites/');
+    final response = await _dio.get('/v8/favorites');
     final body = CommonResponse<List<FavoriteResponseDto>>.fromJson(
       response.data as Map<String, dynamic>,
       (value) =>
@@ -35,13 +35,13 @@ class FavoriteApiService {
   }
 
   //즐겨찾기 삭제
-  Future<void> delelteMyFavorite({required int movieId}) async {
-    await _dio.delete('/v8/favorites/', data: {'movieId': movieId});
+  Future<void> deleteFavorite({required int movieId}) async {
+    await _dio.delete('/v8/favorites/$movieId');
   }
 
   //즐겨찾기 여부 조회
   Future<FavoriteCheckDto> checkFavorite({required int movieId}) async {
-    final response = await _dio.get('/v8/favorites/${movieId}');
+    final response = await _dio.get('/v8/favorites/$movieId');
 
     final body = CommonResponse<FavoriteCheckDto>.fromJson(
       response.data as Map<String, dynamic>,

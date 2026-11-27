@@ -11,13 +11,20 @@ class AuthInterceptor extends Interceptor {
 
   //토큰이 필요한 요청인지를 검사한다.
   bool _isProtected(RequestOptions options) {
+    if (options.uri.scheme != 'https' ||
+        options.uri.host != 'workbook.devnoco.com') {
+      return false;
+    }
     final path = options.uri.path;
-    return options.uri.host == 'workbook.devnoco.com' &&
-        (path == '/v8/members/me' ||
-            path == '/v8/ratings' ||
-            path == '/v8/favorites' ||
-            path.startsWith('/v8/favorites/') ||
-            path.startsWith('/v8/ratings/'));
+    final method = options.method.toUpperCase();
+    return (path == '/v8/members/me' &&
+            (method == 'GET' || method == 'PATCH')) ||
+        (path == '/v8/ratings' && method == 'POST') ||
+        (RegExp(r'^/v8/ratings/[1-9]\d*$').hasMatch(path) &&
+            (method == 'PATCH' || method == 'DELETE')) ||
+        (path == '/v8/favorites' && (method == 'GET' || method == 'POST')) ||
+        (RegExp(r'^/v8/favorites/[1-9]\d*$').hasMatch(path) &&
+            (method == 'GET' || method == 'DELETE'));
   }
 
   @override
@@ -37,8 +44,19 @@ class AuthInterceptor extends Interceptor {
 
     try {
       final token = await _storage.readAccessToken();
-      if (token != null && token.isNotEmpty)
+      if (options.extra['sessionVersion'] != _auth.sessionVersion) {
+        handler.reject(
+          DioException(
+            requestOptions: options,
+            type: DioExceptionType.cancel,
+            error: '세션이 변경되었습니다.',
+          ),
+        );
+        return;
+      }
+      if (token != null && token.isNotEmpty) {
         options.headers['Authorization'] = 'Bearer $token';
+      }
       //토큰 확인과 헤더 설정이 끝났으니 이 요청을 다음 단계로 넘겨라
       handler.next(options);
     } catch (_) {
@@ -54,18 +72,18 @@ class AuthInterceptor extends Interceptor {
 
   //Dio가 제공하는 onError 오버라이드
   @override
-  void onError(DioException error, ErrorInterceptorHandler handler) async {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     try {
       // 이전 세션의 오류로 새 로그인까지 만료시키지 않습니다.
-      final requestVersion = error.requestOptions.extra['sessionVersion'];
-      if (!_isProtected(error.requestOptions) ||
+      final requestVersion = err.requestOptions.extra['sessionVersion'];
+      if (!_isProtected(err.requestOptions) ||
           requestVersion != _auth.sessionVersion) {
         return; // finally에서 원래 오류는 계속 전달합니다.
       }
 
-      if (error.response?.statusCode == 401) {
+      if (err.response?.statusCode == 401) {
         //사용 중 인증이 유효하지 않는 것만 확인
-        final errorCode = apiErrorCode(error);
+        final errorCode = apiErrorCode(err);
         if (errorCode == 'AUTH401_2' ||
             errorCode == 'AUTH401_3' ||
             errorCode == 'AUTH401_4') {
@@ -74,7 +92,7 @@ class AuthInterceptor extends Interceptor {
         }
       }
     } finally {
-      handler.next(error);
+      handler.next(err);
     }
   }
 }

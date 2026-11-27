@@ -5,18 +5,26 @@ import 'package:movielog/widgets/common/tmdb_poster_image.dart';
 import 'package:movielog/widgets/movies/rating_badge.dart';
 
 class MovieListCard extends StatelessWidget {
-  const MovieListCard({super.key, required this.movie, this.genre = ''});
+  const MovieListCard({
+    super.key,
+    required this.movie,
+    this.genre = '',
+    this.onTap,
+  });
 
   final TmdbMovieDto movie;
   final String genre;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final year = DateTime.tryParse(movie.releaseDate ?? '')?.year;
     return InkWell(
-      onTap: () {
-        context.push('/movies/${movie.id}');
-      },
+      onTap:
+          onTap ??
+          () {
+            context.push('/movies/${movie.id}');
+          },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

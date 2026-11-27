@@ -28,7 +28,7 @@ class TestMovieListViewModel extends MovieListViewModel {
   int? requestedGenreId;
 
   @override
-  Future<void> loadInitial() async {
+  Future<void> loadInitial({int? genreId, String query = ''}) async {
     retries++;
     status = MovieListLoadStatus.loading;
     notifyListeners();

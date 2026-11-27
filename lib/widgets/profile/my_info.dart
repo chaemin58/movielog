@@ -3,8 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:movielog/theme/app_theme.dart';
 
 class MyInfo extends StatelessWidget {
-  const MyInfo({super.key, required this.name, this.profileImageUrl});
+  const MyInfo({super.key, required this.name, required this.email, this.profileImageUrl});
   final String name;
+  final String email;
   final String? profileImageUrl;
 
   @override
@@ -27,7 +28,7 @@ class MyInfo extends StatelessWidget {
         ),
         Text(name, style: textTheme.titleLarge),
         Text(
-          '매주 주말엔 영화관으로 출근하는 프로 관람객. \n좋은 영화를 보고 기록하는 것을 좋아합니다.',
+          email,
           style: textTheme.bodyLarge,
         ),
         TextButton(

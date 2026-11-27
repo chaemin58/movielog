@@ -11,13 +11,18 @@ class FavoriteDetailViewModel extends ChangeNotifier with SafeNotify {
     required this.favoriteApi,
     required this.sessionGuard,
     required this.accountId,
-  });
+  }) : _session = sessionGuard.generation;
+
+  final int _session;
+  bool get isCurrentSession =>
+      !isDisposed && sessionGuard.isCurrent(_session, accountId);
 
   final int movieId;
   final FavoriteApiService favoriteApi;
   final SessionGuard sessionGuard;
   final String accountId;
 
+  bool _needsSync = false;
   bool isFavorite = false;
   bool hasLoadedStatus = false;
   bool isLoading = false;
@@ -25,7 +30,7 @@ class FavoriteDetailViewModel extends ChangeNotifier with SafeNotify {
   String? errorMessage;
 
   ({int generation, bool ok}) _snapshot() {
-    final generation = sessionGuard.generation;
+    final generation = _session;
     return (
       generation: generation,
       ok: sessionGuard.isCurrent(generation, accountId) && !isDisposed,
@@ -46,6 +51,7 @@ class FavoriteDetailViewModel extends ChangeNotifier with SafeNotify {
       }
       isFavorite = result.isFavorite;
       hasLoadedStatus = true;
+      _needsSync = false;
     } catch (_) {
       if (!sessionGuard.isCurrent(snap.generation, accountId) || isDisposed) {
         return;
@@ -62,6 +68,10 @@ class FavoriteDetailViewModel extends ChangeNotifier with SafeNotify {
 
   Future<void> toggle() async {
     if (isSaving || isLoading || !hasLoadedStatus) return;
+    if (_needsSync) {
+      await load();
+      return;
+    }
     final snap = _snapshot();
     if (!snap.ok) return;
     final before = isFavorite;
@@ -70,7 +80,7 @@ class FavoriteDetailViewModel extends ChangeNotifier with SafeNotify {
     notifyIfAlive();
     try {
       if (before) {
-        await favoriteApi.delelteMyFavorite(movieId: movieId);
+        await favoriteApi.deleteFavorite(movieId: movieId);
         if (!sessionGuard.isCurrent(snap.generation, accountId) || isDisposed) {
           return;
         }
@@ -87,6 +97,7 @@ class FavoriteDetailViewModel extends ChangeNotifier with SafeNotify {
         return;
       }
       // 이미 등록(409)이거나 이미 해제(404)이면 서버의 현재 여부로 화면을 맞춥니다.
+      _needsSync = true;
       final code = apiErrorCode(error);
       if (code == 'FAVORITE409_1' || code == 'FAVORITE404_1') {
         try {
@@ -95,6 +106,7 @@ class FavoriteDetailViewModel extends ChangeNotifier with SafeNotify {
               isDisposed) {
             return;
           }
+          _needsSync = false;
           isFavorite = synced.isFavorite;
           errorMessage = null;
         } catch (_) {
@@ -113,6 +125,7 @@ class FavoriteDetailViewModel extends ChangeNotifier with SafeNotify {
       if (!sessionGuard.isCurrent(snap.generation, accountId) || isDisposed) {
         return;
       }
+      _needsSync = true;
       isFavorite = before;
       errorMessage = before ? '즐겨찾기 해제에 실패했습니다.' : '즐겨찾기 등록에 실패했습니다.';
     } finally {

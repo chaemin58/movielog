@@ -1,5 +1,10 @@
+import 'package:movielog/screens/favorites_screen.dart';
+import 'package:movielog/screens/movie_search_screen.dart';
+import 'package:movielog/view_models/favorites_view_model.dart';
+import 'package:movielog/view_models/paged_movies_view_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:movielog/core/session/session_guard.dart';
 import 'package:movielog/data/services/member_api_service.dart';
 import 'package:movielog/screens/button_comparison_screen.dart';
 import 'package:movielog/screens/edit_profile.screen.dart';
@@ -7,9 +12,11 @@ import 'package:movielog/screens/login_screen.dart';
 import 'package:movielog/screens/my_profile_screen.dart';
 import 'package:movielog/screens/my_ratings_screen.dart';
 import 'package:movielog/screens/splash_screen.dart';
+import 'package:movielog/service/favorite_api_service.dart';
 import 'package:movielog/service/rating_api_service.dart';
 import 'package:movielog/view_models/auth_view_model.dart';
 import 'package:movielog/view_models/edit_profile_view_model.dart';
+import 'package:movielog/view_models/favorite_detail_view_model.dart';
 import 'package:movielog/view_models/learning_member_session.dart';
 import 'package:movielog/view_models/my_ratings_view_model.dart';
 import 'package:movielog/service/sign_up_service.dart';
@@ -154,20 +161,87 @@ class AppRouter {
         ],
       ),
       GoRoute(
+        path: '/my/favorites',
+        builder: (context, state) {
+          final auth = context.watch<AuthViewModel>();
+          final guard = context.read<SessionGuard>();
+          final member = auth.member;
+          if (member == null || guard.accountId != member.email) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('내 즐겨찾기'), centerTitle: true),
+              body: Center(
+                child: auth.memberStatus == MemberLoadStatus.error
+                    ? TextButton(
+                        onPressed: () => auth.loadMember(force: true),
+                        child: const Text('내 정보 다시 조회'),
+                      )
+                    : const CircularProgressIndicator(),
+              ),
+            );
+          }
+          return ChangeNotifierProvider(
+            key: ValueKey('${member.email}:${guard.generation}'),
+            create: (_) => FavoritesViewModel(
+              context.read<FavoriteApiService>(),
+              context.read<TmdbMovieService>(),
+              guard,
+              member.email,
+            )..refresh(),
+            child: const FavoritesScreen(),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/movies/search',
+        builder: (context, state) => ChangeNotifierProvider(
+          create: (_) => PagedMoviesViewModel(
+            context.read<TmdbMovieService>(),
+            isSearch: true,
+          ),
+          child: const MovieSearchScreen(),
+        ),
+      ),
+      GoRoute(
         path: '/movies/:movieId',
         builder: (context, state) {
-          final id = int.tryParse(state.pathParameters['movieId'] ?? '');
-          if (id == null || id < 1) {
+          final movieId = int.tryParse(state.pathParameters['movieId'] ?? '');
+          final auth = context.watch<AuthViewModel>();
+          final member = auth.member;
+          final guard = context.read<SessionGuard>();
+
+          //내 정보가 준비되고 현재 세션과 일치할 때까지 로딩함.
+          if (member == null || guard.accountId != member.email) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('영화 상세')),
+              body: Center(
+                child: auth.memberStatus == MemberLoadStatus.error
+                    ? TextButton(
+                        onPressed: () => auth.loadMember(force: true),
+                        child: const Text('내 정보 다시 조회'),
+                      )
+                    : const CircularProgressIndicator(),
+              ),
+            );
+          }
+          if (movieId == null || movieId < 1) {
             return const Scaffold(
               body: Center(child: Text('영화  ID가 올바르지 않습니다.')),
             );
           }
-          final extra = state.extra;
-          return MovieDetailLoader(
-            movieId: id,
-            initialMovie: extra is TmdbMovieDto && extra.id == id
-                ? extra
-                : null,
+          return ChangeNotifierProvider(
+            key: ValueKey('${member.email}:${guard.generation}:$movieId'),
+            create: (_) => FavoriteDetailViewModel(
+              movieId: movieId,
+              favoriteApi: context.read<FavoriteApiService>(),
+              sessionGuard: guard,
+              accountId: member.email,
+            )..load(),
+            child: MovieDetailLoader(
+              movieId: movieId,
+              initialMovie: state.extra is TmdbMovieDto
+                  ? state.extra as TmdbMovieDto
+                  : null,
+            ),
           );
         },
       ),

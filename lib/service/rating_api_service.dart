@@ -27,7 +27,7 @@ class RatingApiService {
   final Dio _authDio;
 
   Future<List<RatingDto>> fetchMyRatings(int memberId) async {
-    final response = await _publicDio.get('/v8/members/${memberId}/ratings');
+    final response = await _publicDio.get('/v8/members/$memberId/ratings');
     final list = response.data as List<dynamic>;
     return list
         .map((item) => RatingDto.fromJson(item as Map<String, dynamic>))
@@ -61,7 +61,7 @@ class RatingApiService {
     required int ratingId,
   }) async {
     final response = await _authDio.delete('/v8/ratings/$ratingId');
-    if (response.statusCode != 200) {
+    if (response.statusCode != 204) {
       throw StateError('예상하지 못한 삭제 응답 :${response.statusCode}');
     }
   }

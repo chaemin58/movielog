@@ -3,7 +3,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movielog/data/models/tmdb_movie_detail_dto.dart';
 import 'package:movielog/theme/app_colors.dart';
 import 'package:movielog/utils/format.dart';
-import 'package:movielog/widgets/movie_detail/favorites.dart';
+import 'package:movielog/widgets/movie_detail/favorite_button.dart';
 import 'package:movielog/widgets/movie_detail/movie_description_chip.dart';
 
 class MovieDetailDescription extends StatefulWidget {
@@ -16,8 +16,6 @@ class MovieDetailDescription extends StatefulWidget {
 }
 
 class _MovieDetailDescription extends State<MovieDetailDescription> {
-  bool _isChecked = false;
-
   @override
   Widget build(BuildContext context) {
     final movie = widget.movie;
@@ -32,13 +30,13 @@ class _MovieDetailDescription extends State<MovieDetailDescription> {
         children: [
           Row(
             children: [
-              Text(movie.title, style: Theme.of(context).textTheme.titleMedium),
-              Favorites(
-                handleSubmitFavorite: () {
-                  setState(() => _isChecked = !_isChecked);
-                },
-                isChecked: _isChecked,
+              Expanded(
+                child: Text(
+                  movie.title,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
+              const FavoriteButton(),
             ],
           ),
           Text(

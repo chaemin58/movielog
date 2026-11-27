@@ -10,9 +10,9 @@ class FavoriteResponseDto {
       throw const FormatException('FavoriteResponseDto must be a JSON object.');
     }
     return FavoriteResponseDto(
-      favoriteId: (json['favoriteId']),
-      movieId: json['movieId'],
-      createdAt: json['createdAt'],
+      favoriteId: (json['favoriteId'] as num).toInt(),
+      movieId: (json['movieId'] as num).toInt(),
+      createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
   final int favoriteId;

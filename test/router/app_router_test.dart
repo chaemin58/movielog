@@ -1,3 +1,9 @@
+import '../week9_test.dart' show favoriteDio;
+
+import 'package:movielog/core/session/session_guard.dart';
+import 'package:movielog/core/session/auth_session_bridge.dart';
+import 'package:movielog/service/favorite_api_service.dart';
+import 'package:movielog/data/models/member_info.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -52,6 +58,16 @@ class EmptyRatingsService extends RatingApiService {
   Future<List<RatingDto>> fetchMyRatings(int memberId) async => [];
 }
 
+class _MemberApi extends MemberApiService {
+  _MemberApi() : super(Dio());
+  @override
+  Future<MemberInfo> fetchMe() async => MemberInfo(
+    email: 'test@example.com',
+    nickname: '테스트',
+    createdAt: DateTime(2026),
+  );
+}
+
 class _SuccessfulAuthApi extends AuthApiService {
   _SuccessfulAuthApi(super.dio);
 
@@ -94,7 +110,7 @@ void main() {
     final dio = Dio();
     final auth = AuthViewModel(
       _SuccessfulAuthApi(dio),
-      MemberApiService(dio),
+      _MemberApi(),
       _MemoryTokenStorage(),
     );
     final router = AppRouter.createRouter(auth);
@@ -112,6 +128,20 @@ void main() {
           ChangeNotifierProvider<AuthViewModel>.value(value: auth),
           ChangeNotifierProvider(
             create: (_) => LearningMemberSession()..setMemberId(42),
+          ),
+          Provider<AuthSessionBridge>(
+            create: (_) => AuthSessionBridge(
+              authSignals: auth,
+              sessionVersion: () => auth.sessionVersion,
+              verifiedEmail: () => auth.member?.email,
+            ),
+            dispose: (_, bridge) => bridge.dispose(),
+          ),
+          Provider<SessionGuard>(
+            create: (context) => context.read<AuthSessionBridge>().guard,
+          ),
+          Provider<FavoriteApiService>(
+            create: (_) => FavoriteApiService(favoriteDio(ids: [])),
           ),
           Provider<TmdbMovieService>(create: (_) => OfflineMovieService()),
           Provider<RatingApiService>(create: (_) => EmptyRatingsService()),
@@ -166,6 +196,22 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(MyProfileScreen), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
+
+    await tester.tap(find.text('내 즐겨찾기'));
+    await tester.pumpAndSettle();
+    expect(find.text('즐겨찾기한 영화가 없습니다.'), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    router.go('/movies');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.search));
+    await tester.pumpAndSettle();
+    expect(find.text('검색어를 입력해 주세요.'), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(MoviesPage), findsOneWidget);
 
     router.go('/movies/999999');
     await tester.pumpAndSettle();
